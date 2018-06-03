@@ -21,25 +21,38 @@ public class DungeonState implements MutableState {
 	public int x;
 	public int y;
 	public int[][] level;
+	public int availableKeys;
+	public boolean hasExit;
 
 	private final static List<Object> keys = Arrays.<Object>asList(
 		DungeonDomainGenerator.VAR_X,
 		DungeonDomainGenerator.VAR_Y,
-		DungeonDomainGenerator.VAR_LEVEL
+		DungeonDomainGenerator.VAR_LEVEL,
+		DungeonDomainGenerator.VAR_HAS_EXIT
 	);
 
 	public DungeonState() {}
 
-	public DungeonState(int x, int y, int[][] level) {
+	public DungeonState(int x, int y, int[][] level, int availableKeys, boolean hasExit) {
 		super();
 		this.x = x;
 		this.y = y;
 		this.level = level;
+		this.availableKeys = availableKeys;
+		this.hasExit = hasExit;
+	}
+
+	public int getLevelWidth() {
+		return level.length;
+	}
+
+	public int getLevelHeight() {
+		return level[0].length;
 	}
 
 	@Override
 	public State copy() {
-		return new DungeonState(x, y, level);
+		return new DungeonState(x, y, level, availableKeys, hasExit);
 	}
 
 	@Override
@@ -51,6 +64,10 @@ public class DungeonState implements MutableState {
 				return y;
 			case DungeonDomainGenerator.VAR_LEVEL:
 				return level;
+			case DungeonDomainGenerator.VAR_AVAILABLE_KEYS:
+				return availableKeys;
+			case DungeonDomainGenerator.VAR_HAS_EXIT:
+				return hasExit;
 			default:
 				throw new UnknownKeyException(variableKey);
 		}
@@ -72,6 +89,11 @@ public class DungeonState implements MutableState {
 				break;
 			case DungeonDomainGenerator.VAR_LEVEL:
 				this.level = (int[][])value;
+				break;
+			case DungeonDomainGenerator.VAR_AVAILABLE_KEYS:
+				this.availableKeys = StateUtilities.stringOrNumber(value).intValue();
+			case DungeonDomainGenerator.VAR_HAS_EXIT:
+				hasExit = StateUtilities.stringOrBoolean(value).booleanValue();
 				break;
 			default:
 				throw new UnknownKeyException(variableKey);

@@ -126,6 +126,15 @@ public class DungeonStateModel implements FullStateModel {
 		int top = (int)Math.floor(s.y + halfRoomSize);
 		int bottom = (int)Math.floor(s.y - halfRoomSize);
 
+		if(left < 0)
+			left = 0;
+		if(right >= s.getLevelWidth())
+			right = s.getLevelWidth() - 1;
+		if(bottom < 0)
+			bottom = 0;
+		if(top >= s.getLevelHeight())
+			top = s.getLevelHeight() - 1;
+
 		int[][] levelCopy = deepCopyLevel(s);
 
 		for(int x = left; x <= right; x++)

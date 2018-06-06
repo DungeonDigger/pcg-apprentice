@@ -1,7 +1,6 @@
 package pcgapprentice.dungeonlevel;
 
 import burlap.mdp.auxiliary.DomainGenerator;
-import burlap.mdp.core.Domain;
 import burlap.mdp.core.TerminalFunction;
 import burlap.mdp.core.action.UniversalActionType;
 import burlap.mdp.singleagent.SADomain;
@@ -44,7 +43,7 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final int CELL_DOOR = 6;
 
 	@Override
-	public Domain generateDomain() {
+	public SADomain generateDomain() {
 		SADomain domain = new SADomain();
 
 		domain.addActionTypes(

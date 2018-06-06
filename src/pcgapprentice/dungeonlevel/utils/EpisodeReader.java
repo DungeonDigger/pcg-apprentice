@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import burlap.behavior.singleagent.Episode;
+import burlap.mdp.core.action.SimpleAction;
 import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
 import pcgapprentice.dungeonlevel.DungeonState;
 
@@ -14,6 +15,14 @@ import pcgapprentice.dungeonlevel.DungeonState;
  */
 public class EpisodeReader {
 
+	/**
+	 * Reads an episode from a file output by the Unity-based
+	 * tile level generator.
+	 *
+	 * @param filePath The path to the file
+	 * @return The Episode
+	 * @throws IOException
+	 */
 	public static Episode readDatasetFromFile(String filePath) throws IOException {
 		FileReader file = new FileReader(filePath);
 		BufferedReader br = new BufferedReader(file);
@@ -21,6 +30,7 @@ public class EpisodeReader {
 		String line = "";
 
 		Episode ep = new Episode();
+		boolean hasInitialState = false;
 
 		while((line = br.readLine()) != null) {
 			// Skip empty lines
@@ -34,8 +44,9 @@ public class EpisodeReader {
 			String[] stateParts = stateString.split(";");
 			int x = Integer.parseInt(stateParts[0].substring(2));
 			int y = Integer.parseInt(stateParts[1].substring(2));
+			int availableKeys = Integer.parseInt(stateParts[2].substring(2));
 
-			String levelString = stateParts[2].substring(2);
+			String levelString = stateParts[3].substring(2);
 			String[] levelRows = levelString.split("_");
 			int[][] level = new int[levelRows.length][levelRows[0].split(",").length];
 			boolean hasExit = false;
@@ -50,12 +61,18 @@ public class EpisodeReader {
 				}
 			}
 
-			// TODO read the number of available keys as well
-			DungeonState ds = new DungeonState(x, y, level, -1, hasExit);
+			DungeonState ds = new DungeonState(x, y, level, availableKeys, hasExit);
 
-			// TODO finish all this stuff
+			if(!hasInitialState) {
+				ep.initializeInState(ds);
+				hasInitialState = true;
+				continue;
+			}
+
+			ep.transition(new SimpleAction(action), ds, 0);
 		}
 
+		return ep;
 	}
 
 }

@@ -30,10 +30,20 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final String VAR_X = "x";
 	public static final String VAR_Y = "y";
 	public static final String VAR_LEVEL = "level";
+//	public static final String VAR_AVAILABLE_KEYS = "available-keys";
+//	public static final String VAR_HAS_EXIT = "has-exit";
+
+	// Limited state variables
+	public static final String VAR_VISION = "vision";
+	public static final String VAR_ENEMY_COUNT = "enemy-count";
+	public static final String VAR_TREASURE_COUNT = "treasure-count";
+	public static final String VAR_DOOR_COUNT = "door-count";
+	public static final String VAR_OPEN_COUNT = "open-count";
 	public static final String VAR_AVAILABLE_KEYS = "available-keys";
 	public static final String VAR_HAS_EXIT = "has-exit";
 
 	// Tilemap cell values
+	public static final int CELL_VOID = -1;
 	public static final int CELL_BLOCK = 0;
 	public static final int CELL_OPEN = 1;
 	public static final int CELL_TREASURE = 2;

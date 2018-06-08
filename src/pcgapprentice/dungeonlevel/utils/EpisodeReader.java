@@ -11,7 +11,6 @@ import burlap.behavior.singleagent.Episode;
 import burlap.mdp.core.action.SimpleAction;
 import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
 import pcgapprentice.dungeonlevel.DungeonLimitedState;
-import pcgapprentice.dungeonlevel.DungeonState;
 
 /**
  * A utility class for reading expert demonstrations from a file.
@@ -65,7 +64,7 @@ public class EpisodeReader {
 				}
 			}
 
-			DungeonState ds = new DungeonState(x, y, level, availableKeys, hasExit);
+			DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
 
 			if(!hasInitialState) {
 				ep.initializeInState(ds);
@@ -120,6 +119,9 @@ public class EpisodeReader {
 
 				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
 				//DungeonState ds = new DungeonState(x, y, level, availableKeys, hasExit);
+				if(ds.toString() == "0,0,0,0,0,0,0,0,0,0,0,0,1,1,false") {
+					System.out.println("hoo boy");
+				}
 
 				if(previousState == null) {
 					previousState = ds;

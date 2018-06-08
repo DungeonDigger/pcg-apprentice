@@ -1,5 +1,8 @@
 package pcgapprentice.dungeonlevel;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import burlap.mdp.auxiliary.DomainGenerator;
 import burlap.mdp.core.TerminalFunction;
 import burlap.mdp.core.action.UniversalActionType;
@@ -52,6 +55,13 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final int CELL_KEY = 5;
 	public static final int CELL_DOOR = 6;
 
+	Map<String, HashMap<String, HashMap<String, Double>>> transitionProbabilities;
+
+	public DungeonDomainGenerator(Map<String, HashMap<String, HashMap<String, Double>>> transitionProbabilities) {
+		super();
+		this.transitionProbabilities = transitionProbabilities;
+	}
+
 	@Override
 	public SADomain generateDomain() {
 		SADomain domain = new SADomain();
@@ -70,7 +80,7 @@ public class DungeonDomainGenerator implements DomainGenerator {
 				new UniversalActionType(ACTION_DOOR),
 				new UniversalActionType(ACTION_EXIT));
 
-		DungeonStateModel stateModel = new DungeonStateModel();
+		DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(transitionProbabilities);
 		// The reward function doesn't really matter here - the goal is to learn a real one!
 		RewardFunction rf = new UniformCostRF();
 		TerminalFunction tf = new DungeonTF();

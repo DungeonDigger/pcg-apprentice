@@ -13,7 +13,7 @@ public class DungeonTF implements TerminalFunction {
 
 	@Override
 	public boolean isTerminal(State s) {
-		DungeonState ds = (DungeonState)s;
+		DungeonLimitedState ds = (DungeonLimitedState)s;
 		return ds.hasExit;
 	}
 

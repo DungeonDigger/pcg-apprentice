@@ -44,6 +44,30 @@ public class DungeonLimitedState implements MutableState {
 		this.hasExit = hasExit;
 	}
 
+	public DungeonLimitedState(String s) {
+		String[] parts = s.split(",");
+		vision = new int[3][3];
+		int partIx = 0;
+		for(int i = 0; i < vision.length; i++) {
+			for(int j = 0; j < vision[0].length; j++) {
+				vision[i][j] = Integer.parseInt(parts[partIx]);
+				partIx++;
+			}
+		}
+
+		enemyCount = Integer.parseInt(parts[partIx]);
+		partIx++;
+		treasureCount = Integer.parseInt(parts[partIx]);
+		partIx++;
+		doorCount = Integer.parseInt(parts[partIx]);
+		partIx++;
+		openCount = Integer.parseInt(parts[partIx]);
+		partIx++;
+		availableKeys = Integer.parseInt(parts[partIx]);
+		partIx++;
+		hasExit = Boolean.parseBoolean(parts[partIx]);
+	}
+
 	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit) {
 		int enemyCount = 0;
 		int treasureCount = 0;

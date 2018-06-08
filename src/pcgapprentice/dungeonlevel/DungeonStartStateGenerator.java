@@ -9,7 +9,7 @@ public class DungeonStartStateGenerator implements StateGenerator {
 	public State generateState() {
 		int[][] level = new int[50][50];
 		level[24][0] = 1;
-		return new DungeonState(24, 0, level, 0, false);
+		return new DungeonLimitedState(24, 0, level, 0, false);
 	}
 
 }

@@ -1,11 +1,13 @@
 package pcgapprentice;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import burlap.behavior.policy.Policy;
 import burlap.behavior.policy.PolicyUtils;
@@ -48,14 +50,19 @@ public class DungeonIRL {
 			ApprenticeshipLearningRequest request = new ApprenticeshipLearningRequest(domain, planner, features, expertEpisodes, startStateGenerator);
 			Policy learnedPolicy = ApprenticeshipLearning.getLearnedPolicy(request);
 
+			System.out.println("Finished building policy");
+
 			// Write the policy to a file
 			Date dNow = new Date();
 			SimpleDateFormat ft = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
 			planner.writeValueTable("data/out/" + ft.format(dNow) + "_valtable.yml");
 
-			System.out.println("Finished building policy");
+			// Write the rollout to a file
 			Episode sampleRollout = PolicyUtils.rollout(learnedPolicy, startStateGenerator.generateState(), domain.getModel(), 200);
-			Episode sampleRollout2 = PolicyUtils.rollout(learnedPolicy, startStateGenerator.generateState(), domain.getModel(), 200);
+			String actionRollout = sampleRollout.actionSequence.stream().map(n -> n.actionName()).collect(Collectors.joining("\n"));
+			PrintWriter out = new PrintWriter("data/out/" + ft.format(dNow) + "_rollout.txt");
+			out.println(actionRollout);
+			out.close();
 
 			System.out.println("Done!");
 		} catch (IOException e) {

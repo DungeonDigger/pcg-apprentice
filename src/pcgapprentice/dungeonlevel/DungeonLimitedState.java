@@ -203,4 +203,66 @@ public class DungeonLimitedState implements MutableState {
 		return s;
 	}
 
+	public int[][] getVision() {
+		return vision;
+	}
+
+	public void setVision(int[][] vision) {
+		this.vision = vision;
+	}
+
+	public int getEnemyCount() {
+		return enemyCount;
+	}
+
+	public void setEnemyCount(int enemyCount) {
+		this.enemyCount = enemyCount;
+	}
+
+	public int getTreasureCount() {
+		return treasureCount;
+	}
+
+	public void setTreasureCount(int treasureCount) {
+		this.treasureCount = treasureCount;
+	}
+
+	public int getDoorCount() {
+		return doorCount;
+	}
+
+	public void setDoorCount(int doorCount) {
+		this.doorCount = doorCount;
+	}
+
+	public int getOpenCount() {
+		return openCount;
+	}
+
+	public void setOpenCount(int openCount) {
+		this.openCount = openCount;
+	}
+
+	public int getAvailableKeys() {
+		return availableKeys;
+	}
+
+	public void setAvailableKeys(int availableKeys) {
+		this.availableKeys = availableKeys;
+	}
+
+	public boolean isHasExit() {
+		return hasExit;
+	}
+
+	public void setHasExit(boolean hasExit) {
+		this.hasExit = hasExit;
+	}
+
+	public static List<Object> getKeys() {
+		return keys;
+	}
+
+
+
 }

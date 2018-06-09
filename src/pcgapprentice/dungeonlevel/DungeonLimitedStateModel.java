@@ -30,7 +30,6 @@ public class DungeonLimitedStateModel implements FullStateModel {
 		for (StateTransitionProb stateTransitionProb : transitionProbs) {
 			sumProb += stateTransitionProb.p;
 			if(r < sumProb) {
-				System.out.println("S': " + ((DungeonLimitedState)stateTransitionProb.s).toString());
 				return stateTransitionProb.s;
 			}
 		}
@@ -45,8 +44,11 @@ public class DungeonLimitedStateModel implements FullStateModel {
 		DungeonLimitedState ds = (DungeonLimitedState)s;
 		List<StateTransitionProb> transitions = new ArrayList<StateTransitionProb>();
 
+		// This handles states from which no actions were ever taken. For example,
+		// this could be the last state in an expert episode.
 		if(!transitionProbs.containsKey(ds.toString())) {
-			System.out.println("butts");
+			transitions.add(new StateTransitionProb(s, 1));
+			return transitions;
 		}
 
 		// This action has not been defined for this state.

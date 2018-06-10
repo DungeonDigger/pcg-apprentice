@@ -67,18 +67,18 @@ public class DungeonDomainGenerator implements DomainGenerator {
 		SADomain domain = new SADomain();
 
 		domain.addActionTypes(
-				new UniversalActionType(ACTION_UP),
-				new UniversalActionType(ACTION_DOWN),
-				new UniversalActionType(ACTION_LEFT),
-				new UniversalActionType(ACTION_RIGHT),
-				new UniversalActionType(ACTION_ROOM_SMALL),
-				new UniversalActionType(ACTION_ROOM_MED),
-				new UniversalActionType(ACTION_ROOM_LARGE),
+				new ObservedActionType(ACTION_UP, transitionProbabilities),
+				new ObservedActionType(ACTION_DOWN, transitionProbabilities),
+				new ObservedActionType(ACTION_LEFT, transitionProbabilities),
+				new ObservedActionType(ACTION_RIGHT, transitionProbabilities),
+				new ObservedActionType(ACTION_ROOM_SMALL, transitionProbabilities),
+				new ObservedActionType(ACTION_ROOM_MED, transitionProbabilities),
+				new ObservedActionType(ACTION_ROOM_LARGE, transitionProbabilities),
 				new UniversalActionType(ACTION_TREASURE),
 				new UniversalActionType(ACTION_ENEMY),
 				new UniversalActionType(ACTION_KEY),
 				new UniversalActionType(ACTION_DOOR),
-				new UniversalActionType(ACTION_EXIT));
+				new ObservedActionType(ACTION_EXIT, transitionProbabilities));
 
 		DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(transitionProbabilities);
 		// The reward function doesn't really matter here - the goal is to learn a real one!

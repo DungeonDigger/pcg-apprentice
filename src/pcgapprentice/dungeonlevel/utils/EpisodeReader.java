@@ -3,7 +3,9 @@ package pcgapprentice.dungeonlevel.utils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -19,67 +21,72 @@ import pcgapprentice.dungeonlevel.DungeonLimitedState;
 public class EpisodeReader {
 
 	/**
-	 * Reads an episode from a file output by the Unity-based
+	 * Reads episodes from files output by the Unity-based
 	 * tile level generator.
 	 *
-	 * @param filePath The path to the file
-	 * @return The Episode
+	 * @param filePaths The paths to the episode files
+	 * @return A list of episodes
 	 * @throws IOException
 	 */
-	public static Episode readDatasetFromFile(String filePath) throws IOException {
-		FileReader file = new FileReader(filePath);
-		BufferedReader br = new BufferedReader(file);
+	public static List<Episode> readDatasetFromFile(String[] filePaths) throws IOException {
+		List<Episode> episodes = new ArrayList<Episode>();
+		for (String filePath : filePaths) {
+			FileReader file = new FileReader(filePath);
+			BufferedReader br = new BufferedReader(file);
 
-		String line = "";
+			String line = "";
 
-		Episode ep = new Episode();
-		boolean hasInitialState = false;
+			Episode ep = new Episode();
+			boolean hasInitialState = false;
 
-		while((line = br.readLine()) != null) {
-			// Skip empty lines
-			if(line.matches("^\\s*$"))
-				continue;
+			while((line = br.readLine()) != null) {
+				// Skip empty lines
+				if(line.matches("^\\s*$"))
+					continue;
 
-			String[] lineParts = line.split("\\s+");
-			String action = lineParts[0];
-			String stateString = lineParts[1];
+				String[] lineParts = line.split("\\s+");
+				String action = lineParts[0];
+				String stateString = lineParts[1];
 
-			String[] stateParts = stateString.split(";");
-			int x = Integer.parseInt(stateParts[0].substring(2));
-			int y = Integer.parseInt(stateParts[1].substring(2));
-			int availableKeys = Integer.parseInt(stateParts[2].substring(2));
+				String[] stateParts = stateString.split(";");
+				int x = Integer.parseInt(stateParts[0].substring(2));
+				int y = Integer.parseInt(stateParts[1].substring(2));
+				int availableKeys = Integer.parseInt(stateParts[2].substring(2));
 
-			String levelString = stateParts[3].substring(2);
-			String[] levelRows = levelString.split("_");
-			int[][] level = new int[levelRows.length][levelRows[0].split(",").length];
-			boolean hasExit = false;
+				String levelString = stateParts[3].substring(2);
+				String[] levelRows = levelString.split("_");
+				int[][] level = new int[levelRows.length][levelRows[0].split(",").length];
+				boolean hasExit = false;
 
-			for(int i = 0; i < levelRows.length; i++) {
-				String[] rowVals = levelRows[i].split(",");
-				for(int j = 0; j < rowVals.length; j++) {
-					int tileVal = Integer.parseInt(rowVals[j]);
-					if(tileVal == DungeonDomainGenerator.CELL_EXIT)
-						hasExit = true;
-					level[i][j] = tileVal;
+				for(int i = 0; i < levelRows.length; i++) {
+					String[] rowVals = levelRows[i].split(",");
+					for(int j = 0; j < rowVals.length; j++) {
+						int tileVal = Integer.parseInt(rowVals[j]);
+						if(tileVal == DungeonDomainGenerator.CELL_EXIT)
+							hasExit = true;
+						level[i][j] = tileVal;
+					}
 				}
+
+				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
+
+				if(!hasInitialState) {
+					ep.initializeInState(ds);
+					hasInitialState = true;
+					continue;
+				}
+
+				ep.transition(new SimpleAction(action), ds, 0);
 			}
 
-			DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
-
-			if(!hasInitialState) {
-				ep.initializeInState(ds);
-				hasInitialState = true;
-				continue;
-			}
-
-			ep.transition(new SimpleAction(action), ds, 0);
+			episodes.add(ep);
 		}
-
-		return ep;
+		return episodes;
 	}
 
-	public static Map<String, HashMap<String, HashMap<String, Double>>> readTrajectoriesFromFile(String[] filePaths) throws IOException {
+	public static DemonstrationData readDemonstrationsFromFile(String[] filePaths) throws IOException {
 		Map<String, HashMap<String, HashMap<String, Double>>> frequencies = new HashMap<String, HashMap<String, HashMap<String, Double>>>();
+		int maxEnemies = 0, maxDoors = 0, maxTreasures = 0, maxOpen = 0;
 		for (String filePath : filePaths) {
 			FileReader file = new FileReader(filePath);
 			BufferedReader br = new BufferedReader(file);
@@ -118,10 +125,15 @@ public class EpisodeReader {
 				}
 
 				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
-				//DungeonState ds = new DungeonState(x, y, level, availableKeys, hasExit);
-				if(ds.toString() == "0,0,0,0,0,0,0,0,0,0,0,0,1,1,false") {
-					System.out.println("hoo boy");
-				}
+
+				if(ds.getDoorCount() > maxDoors)
+					maxDoors = ds.getDoorCount();
+				if(ds.getEnemyCount() > maxEnemies)
+					maxEnemies = ds.getEnemyCount();
+				if(ds.getOpenCount() > maxOpen)
+					maxOpen = ds.getOpenCount();
+				if(ds.getTreasureCount() > maxTreasures)
+					maxTreasures = ds.getTreasureCount();
 
 				if(previousState == null) {
 					previousState = ds;
@@ -161,8 +173,7 @@ public class EpisodeReader {
 			}
 		}
 
-		return frequencies;
-
+		return new DemonstrationData(maxOpen, maxDoors, maxEnemies, maxTreasures, frequencies);
 	}
 
 }

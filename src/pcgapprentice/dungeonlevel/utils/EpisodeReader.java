@@ -33,6 +33,7 @@ public class EpisodeReader {
 		for (String filePath : filePaths) {
 			FileReader file = new FileReader(filePath);
 			BufferedReader br = new BufferedReader(file);
+			int roomCount = 0;
 
 			String line = "";
 
@@ -67,8 +68,9 @@ public class EpisodeReader {
 						level[i][j] = tileVal;
 					}
 				}
-
-				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
+				if(action.startsWith("Room"))
+					roomCount++;
+				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit, roomCount);
 
 				if(!hasInitialState) {
 					ep.initializeInState(ds);
@@ -86,10 +88,11 @@ public class EpisodeReader {
 
 	public static DemonstrationData readDemonstrationsFromFile(String[] filePaths) throws IOException {
 		Map<String, HashMap<String, HashMap<String, Double>>> frequencies = new HashMap<String, HashMap<String, HashMap<String, Double>>>();
-		int maxEnemies = 0, maxDoors = 0, maxTreasures = 0, maxOpen = 0;
+		int maxEnemies = 0, maxDoors = 0, maxTreasures = 0, maxOpen = 0, maxRooms = 0;
 		for (String filePath : filePaths) {
 			FileReader file = new FileReader(filePath);
 			BufferedReader br = new BufferedReader(file);
+			int roomCount = 0;
 
 			String line = "";
 
@@ -124,7 +127,9 @@ public class EpisodeReader {
 					}
 				}
 
-				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
+				if(action.startsWith("Room"))
+					roomCount++;
+				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit, roomCount);
 
 				if(ds.getDoorCount() > maxDoors)
 					maxDoors = ds.getDoorCount();
@@ -134,6 +139,8 @@ public class EpisodeReader {
 					maxOpen = ds.getOpenCount();
 				if(ds.getTreasureCount() > maxTreasures)
 					maxTreasures = ds.getTreasureCount();
+				if(roomCount > maxRooms)
+					maxRooms = roomCount;
 
 				if(previousState == null) {
 					previousState = ds;
@@ -173,7 +180,7 @@ public class EpisodeReader {
 			}
 		}
 
-		return new DemonstrationData(maxOpen, maxDoors, maxEnemies, maxTreasures, frequencies);
+		return new DemonstrationData(maxOpen, maxDoors, maxEnemies, maxTreasures, maxRooms, frequencies);
 	}
 
 }

@@ -42,6 +42,7 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final String VAR_TREASURE_COUNT = "treasure-count";
 	public static final String VAR_DOOR_COUNT = "door-count";
 	public static final String VAR_OPEN_COUNT = "open-count";
+	public static final String VAR_ROOM_COUNT = "room-count";
 	public static final String VAR_AVAILABLE_KEYS = "available-keys";
 	public static final String VAR_HAS_EXIT = "has-exit";
 
@@ -67,17 +68,17 @@ public class DungeonDomainGenerator implements DomainGenerator {
 		SADomain domain = new SADomain();
 
 		domain.addActionTypes(
-				new ObservedActionType(ACTION_UP, transitionProbabilities),
-				new ObservedActionType(ACTION_DOWN, transitionProbabilities),
-				new ObservedActionType(ACTION_LEFT, transitionProbabilities),
-				new ObservedActionType(ACTION_RIGHT, transitionProbabilities),
-				new ObservedActionType(ACTION_ROOM_SMALL, transitionProbabilities),
-				new ObservedActionType(ACTION_ROOM_MED, transitionProbabilities),
-				new ObservedActionType(ACTION_ROOM_LARGE, transitionProbabilities),
-				new UniversalActionType(ACTION_TREASURE),
-				new UniversalActionType(ACTION_ENEMY),
-				new UniversalActionType(ACTION_KEY),
-				new UniversalActionType(ACTION_DOOR),
+				new UniversalActionType(ACTION_UP),
+				new UniversalActionType(ACTION_DOWN),
+				new UniversalActionType(ACTION_LEFT),
+				new UniversalActionType(ACTION_RIGHT),
+				new UniversalActionType(ACTION_ROOM_SMALL),
+				new UniversalActionType(ACTION_ROOM_MED),
+				new UniversalActionType(ACTION_ROOM_LARGE),
+				new EmptyCurrentTileActionType(ACTION_TREASURE),
+				new EmptyCurrentTileActionType(ACTION_ENEMY),
+				new EmptyCurrentTileActionType(ACTION_KEY),
+				new EmptyCurrentTileActionType(ACTION_DOOR),
 				new ObservedActionType(ACTION_EXIT, transitionProbabilities));
 
 		DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(transitionProbabilities);

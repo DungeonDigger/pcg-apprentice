@@ -17,6 +17,7 @@ public class DungeonLimitedState implements MutableState {
 	int treasureCount;
 	int doorCount;
 	int openCount;
+	int roomCount;
 	int availableKeys;
 	boolean hasExit;
 
@@ -26,6 +27,7 @@ public class DungeonLimitedState implements MutableState {
 			DungeonDomainGenerator.VAR_TREASURE_COUNT,
 			DungeonDomainGenerator.VAR_DOOR_COUNT,
 			DungeonDomainGenerator.VAR_OPEN_COUNT,
+			DungeonDomainGenerator.VAR_ROOM_COUNT,
 			DungeonDomainGenerator.VAR_AVAILABLE_KEYS,
 			DungeonDomainGenerator.VAR_HAS_EXIT
 		);
@@ -33,7 +35,7 @@ public class DungeonLimitedState implements MutableState {
 	public DungeonLimitedState() {}
 
 	public DungeonLimitedState(int[][] vision, int enemyCount, int treasureCount, int doorCount, int openCount,
-			int availableKeys, boolean hasExit) {
+			int availableKeys, boolean hasExit, int roomCount) {
 		super();
 		this.vision = vision;
 		this.enemyCount = enemyCount;
@@ -42,6 +44,7 @@ public class DungeonLimitedState implements MutableState {
 		this.openCount = openCount;
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
+		this.roomCount = roomCount;
 	}
 
 	public DungeonLimitedState(String s) {
@@ -65,10 +68,12 @@ public class DungeonLimitedState implements MutableState {
 		partIx++;
 		availableKeys = Integer.parseInt(parts[partIx]);
 		partIx++;
+		roomCount = Integer.parseInt(parts[partIx]);
+		partIx++;
 		hasExit = Boolean.parseBoolean(parts[partIx]);
 	}
 
-	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit) {
+	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit, int roomCount) {
 		int enemyCount = 0;
 		int treasureCount = 0;
 		int doorCount = 0;
@@ -112,6 +117,35 @@ public class DungeonLimitedState implements MutableState {
 			i++;
 		}
 
+//		if(enemyCount < 10)
+//			enemyCount = 1;
+//		else if(enemyCount < 20)
+//			enemyCount = 2;
+//		else
+//			enemyCount = 3;
+//
+//		if(treasureCount < 2)
+//			treasureCount = 1;
+//		else if(treasureCount < 4)
+//			treasureCount = 2;
+//		else
+//			treasureCount = 3;
+//
+//		if(doorCount < 1)
+//			doorCount = 1;
+//		else if(doorCount < 2)
+//			doorCount = 2;
+//		else
+//			doorCount = 3;
+//
+//		if(openCount < 100)
+//			openCount = 1;
+//		else if(openCount < 200)
+//			openCount = 2;
+//		else
+//			openCount = 3;
+
+
 		this.vision = visibility;
 		this.enemyCount = enemyCount;
 		this.treasureCount = treasureCount;
@@ -119,6 +153,7 @@ public class DungeonLimitedState implements MutableState {
 		this.openCount = openCount;
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
+		this.roomCount = roomCount;
 	}
 
 	@Override
@@ -143,6 +178,8 @@ public class DungeonLimitedState implements MutableState {
 				return availableKeys;
 			case DungeonDomainGenerator.VAR_HAS_EXIT:
 				return hasExit;
+			case DungeonDomainGenerator.VAR_ROOM_COUNT:
+				return roomCount;
 			default:
 				throw new UnknownKeyException(variableKey);
 		}
@@ -154,7 +191,7 @@ public class DungeonLimitedState implements MutableState {
 		for(int i = 0; i < vision.length; i++)
 			for(int j = 0; j < vision[0].length; j++)
 				visionCopy[i][j] = vision[i][j];
-		return new DungeonLimitedState(visionCopy, enemyCount, treasureCount, doorCount, openCount, availableKeys, hasExit);
+		return new DungeonLimitedState(visionCopy, enemyCount, treasureCount, doorCount, openCount, availableKeys, hasExit, roomCount);
 	}
 
 	@Override
@@ -181,6 +218,9 @@ public class DungeonLimitedState implements MutableState {
 			case DungeonDomainGenerator.VAR_HAS_EXIT:
 				hasExit = StateUtilities.stringOrBoolean(value).booleanValue();;
 				break;
+			case DungeonDomainGenerator.VAR_ROOM_COUNT:
+				roomCount = StateUtilities.stringOrNumber(value).intValue();
+				break;
 			default:
 				throw new UnknownKeyException(variableKey);
 		}
@@ -198,6 +238,7 @@ public class DungeonLimitedState implements MutableState {
 		s += doorCount + ",";
 		s += openCount + ",";
 		s += availableKeys + ",";
+		s += roomCount + ",";
 		s += hasExit;
 
 		return s;
@@ -259,10 +300,16 @@ public class DungeonLimitedState implements MutableState {
 		this.hasExit = hasExit;
 	}
 
+	public int getRoomCount() {
+		return roomCount;
+	}
+
+	public void setRoomCount(int roomCount) {
+		this.roomCount = roomCount;
+	}
+
 	public static List<Object> getKeys() {
 		return keys;
 	}
-
-
 
 }

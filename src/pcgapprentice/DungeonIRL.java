@@ -28,10 +28,15 @@ public class DungeonIRL {
 
 	public static void main(String[] args) {
 		try {
-			DemonstrationData demoData = EpisodeReader.readDemonstrationsFromFile(
-					new String[] {"data/20180605221946-full-demo.dat",
-							"data/20180610131233-full-demo.dat",
-							"data/20180610131426-full-demo.dat"});
+			String [] files = new String[] {"data/20180605221946-full-demo.dat",
+					"data/20180610131233-full-demo.dat",
+					"data/20180610131426-full-demo.dat"};
+
+			String [] enemyFiles = new String[] {"data/enemy-demo (1).dat",
+					"data/enemy-demo (2).dat",
+					"data/enemy-demo (3).dat"};
+
+			DemonstrationData demoData = EpisodeReader.readDemonstrationsFromFile(files);
 			Map<String, HashMap<String, HashMap<String, Double>>> traj = demoData.frequencyData;
 
 			// Create a new domain generator whose MDP will be created from our sampled trajectories
@@ -39,15 +44,12 @@ public class DungeonIRL {
 			SADomain domain = dungeonDomain.generateDomain();
 
 			// Load the episodes to train the IRL with
-			List<Episode> expertEpisodes = EpisodeReader.readDatasetFromFile(
-					new String[] {"data/20180605221946-full-demo.dat",
-							"data/20180610131233-full-demo.dat",
-							"data/20180610131426-full-demo.dat"});
+			List<Episode> expertEpisodes = EpisodeReader.readDatasetFromFile(files);
 
 			// Use simple ValueIteration as a planner
 			ValueIteration planner = new ValueIteration(domain, 0.99, new DungeonHashableStateFactory(), 0.001, 100);
 
-			DungeonFeatures features = new DungeonFeatures(demoData.maxEnemies, demoData.maxTreasures, demoData.maxDoors, demoData.maxOpen);
+			DungeonFeatures features = new DungeonFeatures(demoData.maxEnemies, demoData.maxTreasures, demoData.maxDoors, demoData.maxOpen, demoData.maxRooms);
 
 			StateGenerator startStateGenerator = new DungeonStartStateGenerator();
 

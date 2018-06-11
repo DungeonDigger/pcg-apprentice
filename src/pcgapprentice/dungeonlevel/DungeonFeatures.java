@@ -11,13 +11,15 @@ public class DungeonFeatures implements DenseStateFeatures {
 	public int maxTreasures;
 	public int maxDoors;
 	public int maxOpen;
+	public int maxRooms;
 
-	public DungeonFeatures(int maxEnemies, int maxTreasures, int maxDoors, int maxOpen) {
+	public DungeonFeatures(int maxEnemies, int maxTreasures, int maxDoors, int maxOpen, int maxRooms) {
 		super();
 		this.maxEnemies = maxEnemies;
 		this.maxTreasures = maxTreasures;
 		this.maxDoors = maxDoors;
 		this.maxOpen = maxOpen;
+		this.maxRooms = maxRooms;
 	}
 
 	@Override
@@ -32,6 +34,7 @@ public class DungeonFeatures implements DenseStateFeatures {
 		features.add((double)ds.enemyCount / (double)maxEnemies);
 		features.add((double)ds.treasureCount / (double)maxTreasures);
 		features.add((double)ds.doorCount / (double)maxDoors);
+		features.add((double)ds.roomCount / (double)maxRooms);
 		features.add((double)ds.openCount / (double)maxOpen);
 		features.add(ds.hasExit ? 1.0 : 0);
 
@@ -42,7 +45,7 @@ public class DungeonFeatures implements DenseStateFeatures {
 
 	@Override
 	public DenseStateFeatures copy() {
-		return new DungeonFeatures(maxEnemies, maxTreasures, maxDoors, maxOpen);
+		return new DungeonFeatures(maxEnemies, maxTreasures, maxDoors, maxOpen, maxRooms);
 	}
 
 }

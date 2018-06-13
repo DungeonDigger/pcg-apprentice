@@ -55,6 +55,10 @@ public class ObservedActionType implements ActionType {
 	public List<Action> allApplicableActions(State s) {
 		// Check whether or not this action is valid from the given state
 		DungeonLimitedState ds = (DungeonLimitedState)s;
+		if(!availableActions.containsKey(ds.toString()) && action.actionName() == "PlaceExit") {
+			return allActions;
+		}
+
 		if(!availableActions.containsKey(ds.toString()) || !availableActions.get(ds.toString()).contains(typeName))
 			return new ArrayList<Action>();
 

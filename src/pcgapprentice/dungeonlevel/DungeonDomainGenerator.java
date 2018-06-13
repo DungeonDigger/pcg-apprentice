@@ -5,7 +5,6 @@ import java.util.Map;
 
 import burlap.mdp.auxiliary.DomainGenerator;
 import burlap.mdp.core.TerminalFunction;
-import burlap.mdp.core.action.UniversalActionType;
 import burlap.mdp.singleagent.SADomain;
 import burlap.mdp.singleagent.common.UniformCostRF;
 import burlap.mdp.singleagent.model.FactoredModel;
@@ -74,10 +73,10 @@ public class DungeonDomainGenerator implements DomainGenerator {
 				new ObservedActionType(ACTION_ROOM_SMALL, transitionProbabilities),
 				new ObservedActionType(ACTION_ROOM_MED, transitionProbabilities),
 				new ObservedActionType(ACTION_ROOM_LARGE, transitionProbabilities),
-				new UniversalActionType(ACTION_TREASURE),
-				new UniversalActionType(ACTION_ENEMY),
-				new UniversalActionType(ACTION_KEY),
-				new UniversalActionType(ACTION_DOOR),
+				new ObservedActionType(ACTION_TREASURE, transitionProbabilities),
+				new ObservedActionType(ACTION_ENEMY, transitionProbabilities),
+				new ObservedActionType(ACTION_KEY, transitionProbabilities),
+				new ObservedActionType(ACTION_DOOR, transitionProbabilities),
 				new ObservedActionType(ACTION_EXIT, transitionProbabilities));
 
 		DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(transitionProbabilities);

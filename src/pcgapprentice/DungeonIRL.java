@@ -1,23 +1,21 @@
 package pcgapprentice;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import burlap.behavior.policy.Policy;
-import burlap.behavior.policy.PolicyUtils;
 import burlap.behavior.singleagent.Episode;
-import burlap.behavior.singleagent.learnfromdemo.apprenticeship.ApprenticeshipLearning;
 import burlap.behavior.singleagent.learnfromdemo.apprenticeship.ApprenticeshipLearningRequest;
+import burlap.behavior.singleagent.learning.LearningAgent;
+import burlap.behavior.singleagent.learning.tdmethods.QLearning;
 import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
 import burlap.mdp.auxiliary.StateGenerator;
 import burlap.mdp.singleagent.SADomain;
+import burlap.mdp.singleagent.environment.Environment;
+import burlap.mdp.singleagent.model.RewardFunction;
 import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
+import pcgapprentice.dungeonlevel.DungeonEnvironment;
 import pcgapprentice.dungeonlevel.DungeonFeatures;
 import pcgapprentice.dungeonlevel.DungeonHashableStateFactory;
 import pcgapprentice.dungeonlevel.DungeonStartStateGenerator;
@@ -53,21 +51,39 @@ public class DungeonIRL {
 
 			// Construct the apprenticeship learning request and produce a policy
 			ApprenticeshipLearningRequest request = new ApprenticeshipLearningRequest(domain, planner, features, expertEpisodes, startStateGenerator);
-			Policy learnedPolicy = ApprenticeshipLearning.getLearnedPolicy(request);
+			request.setEpsilon(0.0001);
+//			Policy learnedPolicy = ApprenticeshipLearning.getLearnedPolicy(request);
+			RewardFunction learnedReward = ApprenticeshipLearning2.projectionMethodReward(request);
+
+			// Create an environment for Q-learning
+			Environment dungeonEnvironment = new DungeonEnvironment(learnedReward);
+			LearningAgent agent = new QLearning(domain, 0.99, new DungeonHashableStateFactory(), 100., 0.1);
+
+			Episode e = null;
+			for(int i = 0; i < 1000; i++) {
+				try {
+					e = agent.runLearningEpisode(dungeonEnvironment);
+				} catch(RuntimeException ex) {}
+
+
+				dungeonEnvironment.resetEnvironment();
+			}
+
+
 
 			System.out.println("Finished building policy");
 
 			// Write the policy to a file
-			Date dNow = new Date();
-			SimpleDateFormat ft = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
-			planner.writeValueTable("data/out/" + ft.format(dNow) + "_valtable.yml");
-
-			// Write the rollout to a file
-			Episode sampleRollout = PolicyUtils.rollout(learnedPolicy, startStateGenerator.generateState(), domain.getModel(), 200);
-			String actionRollout = sampleRollout.actionSequence.stream().map(n -> n.actionName()).collect(Collectors.joining("\n"));
-			PrintWriter out = new PrintWriter("data/out/" + ft.format(dNow) + "_rollout.txt");
-			out.println(actionRollout);
-			out.close();
+//			Date dNow = new Date();
+//			SimpleDateFormat ft = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
+//			planner.writeValueTable("data/out/" + ft.format(dNow) + "_valtable.yml");
+//
+//			// Write the rollout to a file
+//			Episode sampleRollout = PolicyUtils.rollout(learnedPolicy, startStateGenerator.generateState(), domain.getModel(), 200);
+//			String actionRollout = sampleRollout.actionSequence.stream().map(n -> n.actionName()).collect(Collectors.joining("\n"));
+//			PrintWriter out = new PrintWriter("data/out/" + ft.format(dNow) + "_rollout.txt");
+//			out.println(actionRollout);
+//			out.close();
 
 			System.out.println("Done!");
 		} catch (IOException e) {

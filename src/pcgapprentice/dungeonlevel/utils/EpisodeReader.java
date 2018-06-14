@@ -13,6 +13,7 @@ import burlap.behavior.singleagent.Episode;
 import burlap.mdp.core.action.SimpleAction;
 import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
 import pcgapprentice.dungeonlevel.DungeonLimitedState;
+import pcgapprentice.dungeonlevel.utils.DemonstrationData;
 
 /**
  * A utility class for reading expert demonstrations from a file.

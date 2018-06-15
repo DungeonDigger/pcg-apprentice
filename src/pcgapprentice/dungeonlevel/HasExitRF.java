@@ -10,7 +10,7 @@ public class HasExitRF implements RewardFunction {
 	public double reward(State s, Action a, State sprime) {
 		DungeonLimitedState ds = (DungeonLimitedState)sprime;
 		if(ds.hasExit) {
-			return 9001;
+			return 10;
 		}
 		return 0;
 	}

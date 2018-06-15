@@ -26,7 +26,7 @@ public class DungeonFeatures implements DenseStateFeatures {
 		ArrayList<Double> features = new ArrayList<Double>();
 
 		// Add the bias term
-//		features.add(1.0);
+		features.add(1.0);
 
 		// Normalize values by the maximum value encountered for each in the training data
 		features.add((double)ds.enemyCount / (double)maxEnemies);

@@ -14,18 +14,13 @@ import burlap.behavior.policy.GreedyQPolicy;
 import burlap.behavior.policy.PolicyUtils;
 import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.learnfromdemo.apprenticeship.ApprenticeshipLearningRequest;
-import burlap.behavior.singleagent.learning.LearningAgent;
-import burlap.behavior.singleagent.learning.tdmethods.QLearning;
 import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
 import burlap.mdp.auxiliary.StateGenerator;
 import burlap.mdp.core.TerminalFunction;
 import burlap.mdp.singleagent.SADomain;
-import burlap.mdp.singleagent.common.UniformCostRF;
-import burlap.mdp.singleagent.environment.Environment;
 import burlap.mdp.singleagent.model.FactoredModel;
 import burlap.mdp.singleagent.model.RewardFunction;
 import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
-import pcgapprentice.dungeonlevel.DungeonEnvironment;
 import pcgapprentice.dungeonlevel.DungeonFeatures;
 import pcgapprentice.dungeonlevel.DungeonHashableStateFactory;
 import pcgapprentice.dungeonlevel.DungeonLimitedStateModel;
@@ -40,21 +35,24 @@ public class DungeonIRL {
 
 	public static void main(String[] args) {
 		try {
-			DemonstrationData demoData = EpisodeReader.readDemonstrationsFromFile(
-					new String[] {"data/20180605221946-full-demo.dat",
-							"data/20180610131233-full-demo.dat",
-							"data/20180610131426-full-demo.dat"});
-			Map<String, HashMap<String, HashMap<String, Double>>> traj = demoData.frequencyData;
+			String[] demoFiles = new String[] {"data/20180605221946-full-demo.dat",
+					"data/20180610131233-full-demo.dat",
+					"data/20180610131426-full-demo.dat"};
+			String[] enemyDemoFiles = new String[] {"data/enemy-demo (1).dat",
+					"data/enemy-demo (2).dat",
+					"data/enemy-demo (3).dat"};
+			// Load the episodes to train the IRL with
+			List<Episode> expertEpisodes = EpisodeReader.readEpisodesFromFiles(
+					enemyDemoFiles);
+			DemonstrationData demoData = EpisodeReader.getDemonstrationDataFromEpisodes(
+					expertEpisodes);
+			Map<String, HashMap<String, HashMap<String, Double>>> freq = demoData.frequencyData;
 
 			// Create a new domain generator whose MDP will be created from our sampled trajectories
-			DungeonDomainGenerator dungeonDomain = new DungeonDomainGenerator(traj);
+			DungeonDomainGenerator dungeonDomain = new DungeonDomainGenerator(freq);
 			SADomain domain = dungeonDomain.generateDomain();
 
-			// Load the episodes to train the IRL with
-			List<Episode> expertEpisodes = EpisodeReader.readDatasetFromFile(
-					new String[] {"data/20180605221946-full-demo.dat",
-							"data/20180610131233-full-demo.dat",
-							"data/20180610131426-full-demo.dat"});
+
 
 			// Use simple ValueIteration as a planner
 			ValueIteration planner = new ValueIteration(domain, 0.99, new DungeonHashableStateFactory(), 0.001, 100);
@@ -70,13 +68,14 @@ public class DungeonIRL {
 			RewardFunction learnedReward = ApprenticeshipLearning2.projectionMethodReward(request);
 			
 			RewardFunction combinedReward = new AggregatedRF(Arrays.asList(learnedReward, new HasExitRF()));
-			DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(traj);
+			DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(freq);
 			// The reward function doesn't really matter here - the goal is to learn a real one!
 			TerminalFunction tf = new DungeonTF();
 
 			domain.setModel(new FactoredModel(stateModel, combinedReward, tf));
 			planner.setDomain(domain);
-			
+
+			planner.resetSolver();
 			GreedyQPolicy superPolicy = planner.planFromState(startStateGenerator.generateState());
 			
 			Episode sampleRollout = PolicyUtils.rollout(superPolicy, startStateGenerator.generateState(), domain.getModel(), 200);

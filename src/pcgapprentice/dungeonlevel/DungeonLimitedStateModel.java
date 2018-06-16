@@ -14,10 +14,13 @@ import burlap.mdp.singleagent.model.statemodel.FullStateModel;
 public class DungeonLimitedStateModel implements FullStateModel {
 
 	Map<String, HashMap<String, HashMap<String, Double>>> transitionProbs;
+	int visionRadius;
 
-	public DungeonLimitedStateModel(Map<String, HashMap<String, HashMap<String, Double>>> transitionProbs) {
+	public DungeonLimitedStateModel(Map<String, HashMap<String, HashMap<String, Double>>> transitionProbs,
+									int visionRadius) {
 		super();
 		this.transitionProbs = transitionProbs;
+		this.visionRadius = visionRadius;
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class DungeonLimitedStateModel implements FullStateModel {
 
 		// The action is defined for this state. Extract the list of transition probabilities
 		for (Entry<String, Double> e: transitionProbs.get(ds.toString()).get(a.actionName()).entrySet()) {
-			transitions.add(new StateTransitionProb(new DungeonLimitedState(e.getKey()), e.getValue()));
+			transitions.add(new StateTransitionProb(new DungeonLimitedState(e.getKey(), visionRadius), e.getValue()));
 		}
 		return transitions;
 	}

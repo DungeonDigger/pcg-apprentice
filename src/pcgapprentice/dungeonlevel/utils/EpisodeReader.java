@@ -27,7 +27,7 @@ public class EpisodeReader {
 	 * @return A list of episodes
 	 * @throws IOException
 	 */
-	public static List<Episode> readEpisodesFromFiles(String[] filePaths) throws IOException {
+	public static List<Episode> readEpisodesFromFiles(String[] filePaths, int visionRadius) throws IOException {
 		List<Episode> episodes = new ArrayList<Episode>();
 		for (String filePath : filePaths) {
 			FileReader file = new FileReader(filePath);
@@ -69,7 +69,8 @@ public class EpisodeReader {
 					}
 				}
 
-				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys, hasExit);
+				DungeonLimitedState ds = new DungeonLimitedState(x, y, level, availableKeys,
+						hasExit, visionRadius);
 
 				actions.add(action);
 				states.add(ds);

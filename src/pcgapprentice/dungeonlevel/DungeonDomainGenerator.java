@@ -55,10 +55,13 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final int CELL_DOOR = 6;
 
 	Map<String, HashMap<String, HashMap<String, Double>>> transitionProbabilities;
+	int visionRadius;
 
-	public DungeonDomainGenerator(Map<String, HashMap<String, HashMap<String, Double>>> transitionProbabilities) {
+	public DungeonDomainGenerator(Map<String, HashMap<String, HashMap<String, Double>>> transitionProbabilities,
+								  int visionRadius) {
 		super();
 		this.transitionProbabilities = transitionProbabilities;
+		this.visionRadius = visionRadius;
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public class DungeonDomainGenerator implements DomainGenerator {
 				new ObservedActionType(ACTION_DOOR, transitionProbabilities),
 				new ObservedActionType(ACTION_EXIT, transitionProbabilities));
 
-		DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(transitionProbabilities);
+		DungeonLimitedStateModel stateModel = new DungeonLimitedStateModel(transitionProbabilities, visionRadius);
 		// The reward function doesn't really matter here - the goal is to learn a real one!
 		RewardFunction rf = new UniformCostRF();
 		TerminalFunction tf = new DungeonTF();

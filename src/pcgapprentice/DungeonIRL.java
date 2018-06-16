@@ -47,7 +47,7 @@ public class DungeonIRL {
 					"data/enemy-demo (2).dat",
 					"data/enemy-demo (3).dat"};
 
-			trainIrlAgentAndGenerateEpisode(demoFiles, 0.1, 3);
+			trainIrlAgentAndGenerateEpisode(demoFiles, 10, 4);
 		} catch (IOException e) {
 			System.err.println("Unable to read episode file: " + e.getMessage());
 			e.printStackTrace();
@@ -70,14 +70,14 @@ public class DungeonIRL {
 														   int agentVisionRadius) throws IOException {
 		// Load the episodes to train the IRL with
 		List<Episode> expertEpisodes = EpisodeReader.readEpisodesFromFiles(
-				expertDemonstrationFiles);
+				expertDemonstrationFiles, agentVisionRadius);
 		// Extract data from the episodes such as frequency data of state transitions
 		DemonstrationData demoData = EpisodeReader.getDemonstrationDataFromEpisodes(
 				expertEpisodes);
 		Map<String, HashMap<String, HashMap<String, Double>>> freq = demoData.frequencyData;
 
 		// Create a new domain generator whose MDP will be created from our sampled frequency data
-		DungeonDomainGenerator dungeonDomain = new DungeonDomainGenerator(freq);
+		DungeonDomainGenerator dungeonDomain = new DungeonDomainGenerator(freq, agentVisionRadius);
 		SADomain domain = dungeonDomain.generateDomain();
 
 		// Use simple ValueIteration as a planner for solving MDPs during apprenticeship learning
@@ -87,7 +87,7 @@ public class DungeonIRL {
 		DungeonFeatures features = new DungeonFeatures(demoData.maxEnemies, demoData.maxTreasures, demoData.maxDoors, demoData.maxOpen);
 
 		// Create a generator for the initial state in the MDP
-		StateGenerator startStateGenerator = new DungeonStartStateGenerator();
+		StateGenerator startStateGenerator = new DungeonStartStateGenerator(agentVisionRadius);
 
 		// Construct the apprenticeship learning request and produce a policy
 		ApprenticeshipLearningRequest request = new ApprenticeshipLearningRequest(domain, planner, features, expertEpisodes, startStateGenerator);
@@ -98,7 +98,7 @@ public class DungeonIRL {
 		RewardFunction combinedReward = new AggregatedRF(Arrays.asList(learnedReward, new HasExitRF(endReward)));
 
 		// Solve the MDP using the combined reward function
-		domain.setModel(new FactoredModel(new DungeonLimitedStateModel(freq), combinedReward, new DungeonTF()));
+		domain.setModel(new FactoredModel(new DungeonLimitedStateModel(freq, agentVisionRadius), combinedReward, new DungeonTF()));
 		planner.setDomain(domain);
 		planner.resetSolver();
 		GreedyQPolicy policy = planner.planFromState(startStateGenerator.generateState());

@@ -44,9 +44,10 @@ public class DungeonLimitedState implements MutableState {
 		this.hasExit = hasExit;
 	}
 
-	public DungeonLimitedState(String s) {
+	public DungeonLimitedState(String s, int visionRadius) {
+		int visionDim = getVisionDim(visionRadius);
 		String[] parts = s.split(",");
-		vision = new int[3][3];
+		vision = new int[visionDim][visionDim];
 		int partIx = 0;
 		for(int i = 0; i < vision.length; i++) {
 			for(int j = 0; j < vision[0].length; j++) {
@@ -68,11 +69,13 @@ public class DungeonLimitedState implements MutableState {
 		hasExit = Boolean.parseBoolean(parts[partIx]);
 	}
 
-	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit) {
+	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit,
+							   int visionRadius) {
 		int enemyCount = 0;
 		int treasureCount = 0;
 		int doorCount = 0;
 		int openCount = 0;
+		int visionDim = getVisionDim(visionRadius);
 
 		for(int i = 0; i < level.length; i++) {
 			for(int j = 0; j < level[0].length; j++) {
@@ -90,12 +93,12 @@ public class DungeonLimitedState implements MutableState {
 			}
 		}
 
-		int left = x - 1;
-		int right = x + 1;
-		int bottom = y - 1;
-		int top = y + 1;
+		int left = x - visionRadius;
+		int right = x + visionRadius;
+		int bottom = y - visionRadius;
+		int top = y + visionRadius;
 
-		int[][] visibility = new int[3][3];
+		int[][] visibility = new int[visionDim][visionDim];
 		int i = 0, j = 0;
 		for(int dx = left; dx <= right; dx++) {
 			j = 0;
@@ -119,6 +122,16 @@ public class DungeonLimitedState implements MutableState {
 		this.openCount = openCount;
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
+	}
+
+	/**
+	 * Gets the dimension of the vision 2D array from the given radius.
+	 *
+	 * @param visionRadius The radius of vision the agent should have
+	 * @return The radius of vision
+	 */
+	private int getVisionDim(int visionRadius) {
+		return visionRadius * 2 + 1;
 	}
 
 	@Override

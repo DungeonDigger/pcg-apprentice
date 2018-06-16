@@ -12,9 +12,11 @@ public class DungeonEnvironment implements Environment {
 	private DungeonStateModel fullModel;
 	private RewardFunction rf;
 	private double lastReward = 0.;
+	private int visionRadius;
 
-	public DungeonEnvironment(RewardFunction rf) {
+	public DungeonEnvironment(RewardFunction rf, int visionRadius) {
 		this.rf = rf;
+		this.visionRadius = visionRadius;
 		this.resetEnvironment();
 		fullModel = new DungeonStateModel();
 	}
@@ -23,7 +25,7 @@ public class DungeonEnvironment implements Environment {
 	public State currentObservation() {
 		// Get the limited state view
 		return new DungeonLimitedState(fullHiddenState.x, fullHiddenState.y, fullHiddenState.level,
-				fullHiddenState.availableKeys, fullHiddenState.hasExit);
+				fullHiddenState.availableKeys, fullHiddenState.hasExit, visionRadius);
 	}
 
 	@Override
@@ -34,7 +36,7 @@ public class DungeonEnvironment implements Environment {
 		// Find the next limited view state
 		DungeonLimitedState currentState = (DungeonLimitedState) currentObservation();
 		DungeonLimitedState nextLimitedState = new DungeonLimitedState(nextState.x, nextState.y, nextState.level,
-				nextState.availableKeys, nextState.hasExit);
+				nextState.availableKeys, nextState.hasExit, visionRadius);
 
 		// Prepare the outcome
 		double reward = rf.reward(currentState, a, nextLimitedState);

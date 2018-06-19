@@ -13,16 +13,20 @@ public class DungeonEnvironment implements Environment {
 	private RewardFunction rf;
 	private double lastReward = 0.;
 	private int visionRadius;
+	private boolean useFullState;
 
-	public DungeonEnvironment(RewardFunction rf, int visionRadius) {
+	public DungeonEnvironment(RewardFunction rf, int visionRadius, boolean useFullState) {
 		this.rf = rf;
 		this.visionRadius = visionRadius;
 		this.resetEnvironment();
 		fullModel = new DungeonStateModel();
+		this.useFullState = useFullState;
 	}
 
 	@Override
 	public State currentObservation() {
+		if(useFullState)
+			return fullHiddenState;
 		// Get the limited state view
 		return new DungeonLimitedState(fullHiddenState.x, fullHiddenState.y, fullHiddenState.level,
 				fullHiddenState.availableKeys, fullHiddenState.hasExit, visionRadius);
@@ -34,13 +38,19 @@ public class DungeonEnvironment implements Environment {
 		DungeonState nextState = (DungeonState)(fullModel.sample(fullHiddenState, a));
 
 		// Find the next limited view state
-		DungeonLimitedState currentState = (DungeonLimitedState) currentObservation();
+		DungeonLimitedState currentState = new DungeonLimitedState(fullHiddenState.x, fullHiddenState.y, fullHiddenState.level,
+				fullHiddenState.availableKeys, fullHiddenState.hasExit, visionRadius);
 		DungeonLimitedState nextLimitedState = new DungeonLimitedState(nextState.x, nextState.y, nextState.level,
 				nextState.availableKeys, nextState.hasExit, visionRadius);
 
 		// Prepare the outcome
 		double reward = rf.reward(currentState, a, nextLimitedState);
-		EnvironmentOutcome outcome = new EnvironmentOutcome(currentState, a, nextLimitedState, reward, nextLimitedState.hasExit);
+		EnvironmentOutcome outcome;
+		if(useFullState) {
+			outcome = new EnvironmentOutcome(fullHiddenState, a, nextState, reward, nextState.hasExit);
+		} else {
+			outcome = new EnvironmentOutcome(currentState, a, nextLimitedState, reward, nextLimitedState.hasExit);
+		}
 
 		// Update the current view of the world
 		fullHiddenState = nextState;

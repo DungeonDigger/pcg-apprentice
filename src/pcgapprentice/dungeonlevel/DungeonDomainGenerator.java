@@ -9,6 +9,10 @@ import burlap.mdp.singleagent.SADomain;
 import burlap.mdp.singleagent.common.UniformCostRF;
 import burlap.mdp.singleagent.model.FactoredModel;
 import burlap.mdp.singleagent.model.RewardFunction;
+import burlap.visualizer.StateRenderLayer;
+import burlap.visualizer.Visualizer;
+import pcgapprentice.dungeonlevel.visualization.AgentPainter;
+import pcgapprentice.dungeonlevel.visualization.LevelPainter;
 
 public class DungeonDomainGenerator implements DomainGenerator {
 
@@ -32,8 +36,6 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final String VAR_X = "x";
 	public static final String VAR_Y = "y";
 	public static final String VAR_LEVEL = "level";
-//	public static final String VAR_AVAILABLE_KEYS = "available-keys";
-//	public static final String VAR_HAS_EXIT = "has-exit";
 
 	// Limited state variables
 	public static final String VAR_VISION = "vision";
@@ -90,6 +92,19 @@ public class DungeonDomainGenerator implements DomainGenerator {
 		domain.setModel(new FactoredModel(stateModel, rf, tf));
 
 		return domain;
+	}
+
+	/**
+	 * Gets a visualizer that can render the full state of the dungeon generation
+	 * world.
+	 *
+	 * @return A visualizer for DungeonStates
+	 */
+	public static Visualizer getFullStateVisualizer() {
+		StateRenderLayer rl = new StateRenderLayer();
+		rl.addStatePainter(new LevelPainter());
+		rl.addStatePainter(new AgentPainter());
+		return new Visualizer(rl);
 	}
 
 }

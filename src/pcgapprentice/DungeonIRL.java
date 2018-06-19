@@ -1,5 +1,6 @@
 package pcgapprentice;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -16,20 +17,19 @@ import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.learnfromdemo.apprenticeship.ApprenticeshipLearningRequest;
 import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
 import burlap.mdp.auxiliary.StateGenerator;
-import burlap.mdp.core.TerminalFunction;
+import burlap.mdp.core.action.Action;
 import burlap.mdp.singleagent.SADomain;
+import burlap.mdp.singleagent.common.UniformCostRF;
+import burlap.mdp.singleagent.common.VisualActionObserver;
 import burlap.mdp.singleagent.model.FactoredModel;
 import burlap.mdp.singleagent.model.RewardFunction;
-import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
-import pcgapprentice.dungeonlevel.DungeonFeatures;
-import pcgapprentice.dungeonlevel.DungeonHashableStateFactory;
-import pcgapprentice.dungeonlevel.DungeonLimitedStateModel;
-import pcgapprentice.dungeonlevel.DungeonStartStateGenerator;
-import pcgapprentice.dungeonlevel.DungeonTF;
-import pcgapprentice.dungeonlevel.HasExitRF;
+import burlap.visualizer.Visualizer;
+import pcgapprentice.dungeonlevel.*;
 import pcgapprentice.dungeonlevel.utils.DemonstrationData;
 import pcgapprentice.dungeonlevel.utils.EpisodeReader;
 import pcgapprentice.reward.AggregatedRF;
+
+import javax.swing.*;
 
 /**
  * The main entry point for running apprenticeship learning and generating policies.
@@ -47,7 +47,8 @@ public class DungeonIRL {
 					"data/enemy-demo (2).dat",
 					"data/enemy-demo (3).dat"};
 
-			trainIrlAgentAndGenerateEpisode(demoFiles, 10, 4);
+			Episode ep = trainIrlAgentAndGenerateEpisode(demoFiles, 10, 2);
+			renderEpisodeVisualization(ep);
 		} catch (IOException e) {
 			System.err.println("Unable to read episode file: " + e.getMessage());
 			e.printStackTrace();
@@ -122,6 +123,40 @@ public class DungeonIRL {
 		System.out.println("Done!");
 
 		return agentEp;
+	}
+
+	/**
+	 * Renders an episode of an agent into a panel for a quick visualization of
+	 * the agent's run and the final generated level.
+	 *
+	 * @param ep The episode to visualize
+	 */
+	private static void renderEpisodeVisualization(Episode ep) {
+		// Initialize an environment and the visualizer
+		DungeonEnvironment environment = new DungeonEnvironment(new UniformCostRF(), 1, true);
+		Visualizer v = DungeonDomainGenerator.getFullStateVisualizer();
+		v.setPreferredSize(new Dimension(1200, 1200));
+		VisualActionObserver observer = new VisualActionObserver(v);
+
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(v);
+		frame.pack();
+		frame.setVisible(true);
+
+		v.updateState(environment.currentObservation());
+
+		// Iterate through each action in the episode and update the state
+		for(Action a : ep.actionSequence) {
+			environment.executeAction(a);
+			v.updateState(environment.currentObservation());
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 }

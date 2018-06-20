@@ -120,7 +120,7 @@ public class DungeonStateModel implements FullStateModel {
 	 * @param roomSize
 	 */
 	private void createRoom(DungeonState s, int roomSize) {
-		double halfRoomSize = (double)roomSize / 2;
+		int halfRoomSize = roomSize / 2;
 		int left = (int)Math.floor(s.x - halfRoomSize);
 		int right = (int)Math.floor(s.x + halfRoomSize);
 		int top = (int)Math.floor(s.y + halfRoomSize);

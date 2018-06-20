@@ -200,12 +200,21 @@ public class DungeonLimitedState implements MutableState {
 		return this;
 	}
 
-	@Override
-	public String toString() {
+	/**
+	 * Gets a string representation of the agent's field of vision.
+	 * @return A comma delimited string
+	 */
+	public String getVisionString() {
 		String s = "";
 		for(int i = 0; i < vision.length; i++)
 			for(int j = 0; j < vision[0].length; j++)
 				s += (vision[i][j] + ",");
+		return s.substring(0, s.length() - 1);
+	}
+
+	@Override
+	public String toString() {
+		String s = getVisionString() + ",";
 		s += enemyCount + ",";
 		s += treasureCount + ",";
 		s += doorCount + ",";

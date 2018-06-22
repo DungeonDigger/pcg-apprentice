@@ -2,6 +2,7 @@ package pcgapprentice.dungeonlevel;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import burlap.mdp.core.state.MutableState;
 import burlap.mdp.core.state.State;
@@ -19,6 +20,7 @@ public class DungeonLimitedState implements MutableState {
 	int openCount;
 	int availableKeys;
 	boolean hasExit;
+	boolean roomWouldIntersect;
 
 	private final static List<Object> keys = Arrays.<Object>asList(
 			DungeonDomainGenerator.VAR_VISION,
@@ -27,13 +29,14 @@ public class DungeonLimitedState implements MutableState {
 			DungeonDomainGenerator.VAR_DOOR_COUNT,
 			DungeonDomainGenerator.VAR_OPEN_COUNT,
 			DungeonDomainGenerator.VAR_AVAILABLE_KEYS,
-			DungeonDomainGenerator.VAR_HAS_EXIT
+			DungeonDomainGenerator.VAR_HAS_EXIT,
+			DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT
 		);
 
 	public DungeonLimitedState() {}
 
 	public DungeonLimitedState(int[][] vision, int enemyCount, int treasureCount, int doorCount, int openCount,
-			int availableKeys, boolean hasExit) {
+			int availableKeys, boolean hasExit, boolean roomWouldIntersect) {
 		super();
 		this.vision = vision;
 		this.enemyCount = enemyCount;
@@ -42,6 +45,7 @@ public class DungeonLimitedState implements MutableState {
 		this.openCount = openCount;
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
+		this.roomWouldIntersect = roomWouldIntersect;
 	}
 
 	public DungeonLimitedState(String s, int visionRadius) {
@@ -67,6 +71,8 @@ public class DungeonLimitedState implements MutableState {
 		availableKeys = Integer.parseInt(parts[partIx]);
 		partIx++;
 		hasExit = Boolean.parseBoolean(parts[partIx]);
+		partIx++;
+		roomWouldIntersect = Boolean.parseBoolean(parts[partIx]);
 	}
 
 	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit,
@@ -115,6 +121,30 @@ public class DungeonLimitedState implements MutableState {
 			i++;
 		}
 
+		boolean intersect = false;
+		left = x - 4;
+		right = x + 4;
+		bottom = y - 4;
+		top = y + 4;
+
+		for(int a = left; a <= right; a++) {
+			for(int b = bottom; b <= top; b++) {
+				if(a < 0 || a >= level.length ||
+						b < 0 || b >= level[0].length) {
+					// out of bounds is counted as a room intersection since
+					// the full room cannot be placed
+					intersect = true;
+					break;
+				}
+				if(a != x && y != b && level[a][b] != DungeonDomainGenerator.CELL_BLOCK) {
+					intersect = true;
+					break;
+				}
+			}
+			if(intersect) break;
+		}
+
+
 		this.vision = visibility;
 		this.enemyCount = enemyCount;
 		this.treasureCount = treasureCount;
@@ -122,6 +152,7 @@ public class DungeonLimitedState implements MutableState {
 		this.openCount = openCount;
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
+		this.roomWouldIntersect = intersect;
 	}
 
 	/**
@@ -156,6 +187,8 @@ public class DungeonLimitedState implements MutableState {
 				return availableKeys;
 			case DungeonDomainGenerator.VAR_HAS_EXIT:
 				return hasExit;
+			case DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT:
+				return roomWouldIntersect;
 			default:
 				throw new UnknownKeyException(variableKey);
 		}
@@ -167,7 +200,8 @@ public class DungeonLimitedState implements MutableState {
 		for(int i = 0; i < vision.length; i++)
 			for(int j = 0; j < vision[0].length; j++)
 				visionCopy[i][j] = vision[i][j];
-		return new DungeonLimitedState(visionCopy, enemyCount, treasureCount, doorCount, openCount, availableKeys, hasExit);
+		return new DungeonLimitedState(visionCopy, enemyCount, treasureCount, doorCount, openCount, availableKeys,
+				hasExit, roomWouldIntersect);
 	}
 
 	@Override
@@ -193,6 +227,9 @@ public class DungeonLimitedState implements MutableState {
 				break;
 			case DungeonDomainGenerator.VAR_HAS_EXIT:
 				hasExit = StateUtilities.stringOrBoolean(value).booleanValue();;
+				break;
+			case DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT:
+				roomWouldIntersect = StateUtilities.stringOrBoolean(value).booleanValue();;
 				break;
 			default:
 				throw new UnknownKeyException(variableKey);
@@ -220,7 +257,8 @@ public class DungeonLimitedState implements MutableState {
 		s += doorCount + ",";
 		s += openCount + ",";
 		s += availableKeys + ",";
-		s += hasExit;
+		s += hasExit + ",";
+		s += roomWouldIntersect;
 
 		return s;
 	}
@@ -281,10 +319,16 @@ public class DungeonLimitedState implements MutableState {
 		this.hasExit = hasExit;
 	}
 
+	public boolean isRoomWouldIntersect() {
+		return roomWouldIntersect;
+	}
+
+	public void setRoomWouldIntersect(boolean roomWouldIntersect) {
+		this.roomWouldIntersect = roomWouldIntersect;
+	}
+
 	public static List<Object> getKeys() {
 		return keys;
 	}
-
-
 
 }

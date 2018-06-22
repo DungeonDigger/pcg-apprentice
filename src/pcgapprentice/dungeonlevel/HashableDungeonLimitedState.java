@@ -1,6 +1,7 @@
 package pcgapprentice.dungeonlevel;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import burlap.mdp.core.state.State;
 import burlap.statehashing.WrappedHashableState;
@@ -21,6 +22,7 @@ public class HashableDungeonLimitedState extends WrappedHashableState {
 		result = prime * result + ds.enemyCount;
 		result = prime * result + (ds.hasExit ? 1231 : 1237);
 		result = prime * result + ds.openCount;
+		result = prime * result + (ds.roomWouldIntersect ? 1231 : 1237);
 		result = prime * result + ds.treasureCount;
 		result = prime * result + Arrays.deepHashCode(ds.vision);
 		return result;
@@ -48,6 +50,8 @@ public class HashableDungeonLimitedState extends WrappedHashableState {
 		if (ds.openCount != other.openCount)
 			return false;
 		if (ds.treasureCount != other.treasureCount)
+			return false;
+		if (ds.roomWouldIntersect != other.roomWouldIntersect)
 			return false;
 		if (!Arrays.deepEquals(ds.vision, other.vision))
 			return false;

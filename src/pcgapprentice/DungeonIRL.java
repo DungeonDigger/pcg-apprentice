@@ -1,6 +1,6 @@
 package pcgapprentice;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.swing.JFrame;
+
 import burlap.behavior.policy.GreedyQPolicy;
-import burlap.behavior.policy.PolicyUtils;
 import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.learnfromdemo.apprenticeship.ApprenticeshipLearningRequest;
 import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
@@ -24,12 +25,18 @@ import burlap.mdp.singleagent.common.VisualActionObserver;
 import burlap.mdp.singleagent.model.FactoredModel;
 import burlap.mdp.singleagent.model.RewardFunction;
 import burlap.visualizer.Visualizer;
-import pcgapprentice.dungeonlevel.*;
+import pcgapprentice.dungeonlevel.DungeonDomainGenerator;
+import pcgapprentice.dungeonlevel.DungeonEnvironment;
+import pcgapprentice.dungeonlevel.DungeonFeatures;
+import pcgapprentice.dungeonlevel.DungeonHashableStateFactory;
+import pcgapprentice.dungeonlevel.DungeonLimitedStateModel;
+import pcgapprentice.dungeonlevel.DungeonPolicyUtils;
+import pcgapprentice.dungeonlevel.DungeonStartStateGenerator;
+import pcgapprentice.dungeonlevel.DungeonTF;
+import pcgapprentice.dungeonlevel.HasExitRF;
 import pcgapprentice.dungeonlevel.utils.DemonstrationData;
 import pcgapprentice.dungeonlevel.utils.EpisodeReader;
 import pcgapprentice.reward.AggregatedRF;
-
-import javax.swing.*;
 
 /**
  * The main entry point for running apprenticeship learning and generating policies.
@@ -47,8 +54,15 @@ public class DungeonIRL {
 					"data/enemy-demo (2).dat",
 					"data/enemy-demo (3).dat"};
 
-			Episode ep = trainIrlAgentAndGenerateEpisode(demoFiles, 1, 2,
-					400, 0.005, 3,
+			String[] allFiles = new String[] {"data/20180605221946-full-demo.dat",
+					"data/20180610131233-full-demo.dat",
+					"data/20180610131426-full-demo.dat",
+					"data/enemy-demo (1).dat",
+					"data/enemy-demo (2).dat",
+					"data/enemy-demo (3).dat"};
+
+			Episode ep = trainIrlAgentAndGenerateEpisode(allFiles, 2, 2,
+					400, 0.005, 0,
 					DungeonPolicyUtils.RolloutRefreshType.StartState);
 			renderEpisodeVisualization(ep);
 		} catch (IOException e) {

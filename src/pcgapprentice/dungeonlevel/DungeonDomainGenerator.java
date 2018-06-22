@@ -45,6 +45,7 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final String VAR_OPEN_COUNT = "open-count";
 	public static final String VAR_AVAILABLE_KEYS = "available-keys";
 	public static final String VAR_HAS_EXIT = "has-exit";
+	public static final String VAR_ROOM_WOULD_INTERSECT = "intersect";
 
 	// Tilemap cell values
 	public static final int CELL_VOID = -1;

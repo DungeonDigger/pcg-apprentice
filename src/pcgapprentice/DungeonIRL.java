@@ -54,16 +54,27 @@ public class DungeonIRL {
 					"data/enemy-demo (2).dat",
 					"data/enemy-demo (3).dat"};
 
-			String[] allFiles = new String[] {"data/20180605221946-full-demo.dat",
-					"data/20180610131233-full-demo.dat",
-					"data/20180610131426-full-demo.dat",
-					"data/enemy-demo (1).dat",
-					"data/enemy-demo (2).dat",
-					"data/enemy-demo (3).dat"};
+			String[] allFiles = new String[] {
+//					"data/20180605221946-full-demo.dat",
+//					"data/20180610131233-full-demo.dat",
+//					"data/20180610131426-full-demo.dat",
+//					"data/enemy-demo (1).dat",
+//					"data/enemy-demo (2).dat",
+//					"data/enemy-demo (3).dat",
+					"data/alex-demo (1).dat",
+					"data/alex-demo (2).dat",
+					"data/alex-demo (3).dat",
+					"data/alex-demo (4).dat",
+					"data/alex-demo (5).dat",
+					"data/evan-demo (1).dat",
+					"data/evan-demo (2).dat",
+					"data/evan-demo (3).dat",
+					"data/evan-demo (4).dat",
+					"data/evan-demo (5).dat"};
 
 			Episode ep = trainIrlAgentAndGenerateEpisode(allFiles, 2, 2,
-					400, 0.005, 0,
-					DungeonPolicyUtils.RolloutRefreshType.StartState);
+					400, 0.01, 0,
+					DungeonPolicyUtils.RolloutRefreshType.RandomState);
 			renderEpisodeVisualization(ep);
 		} catch (IOException e) {
 			System.err.println("Unable to read episode file: " + e.getMessage());

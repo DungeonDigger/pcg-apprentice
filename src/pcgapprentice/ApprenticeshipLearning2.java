@@ -431,6 +431,7 @@ public class ApprenticeshipLearning2 {
 		int maxIterations = request.getMaxIterations();
 		double[] tHistory = new double[maxIterations];
 		int policyCount = request.getPolicyCount();
+		double lastScore = Double.MAX_VALUE;
 		for (int i = 0; i < maxIterations; ++i) {
 			// (2) Compute weights and score using projection method
 			//THIS IS THE KEY DIFFERENCE BETWEEN THE MAXIMUM MARGIN METHOD AND THE PROJECTION METHOD
@@ -451,6 +452,10 @@ public class ApprenticeshipLearning2 {
 			if (featureWeights.getScore() <= request.getEpsilon()) {
 				return rewardFunction;
 			}
+			if (lastScore - featureWeights.getScore() < 0.00001) {
+				return rewardFunction;
+			}
+			lastScore = featureWeights.getScore();
 
 			for(int z = 0; z < featureWeights.weights.length; z++){
 				DPrint.c(DEBUG_CODE_RF_WEIGHTS, z + ": " + featureWeights.weights[z] + "; ");

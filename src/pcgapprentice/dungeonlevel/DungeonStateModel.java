@@ -80,7 +80,7 @@ public class DungeonStateModel implements FullStateModel {
 	 * Modifies state s to be the result of the digger moving a single space
 	 * in a cardinal direction.
 	 *
-	 * @param nextState
+	 * @param s
 	 * @param action
 	 */
 	private void move(DungeonState s, String action) {
@@ -137,9 +137,39 @@ public class DungeonStateModel implements FullStateModel {
 
 		int[][] levelCopy = deepCopyLevel(s);
 
-		for(int x = left; x <= right; x++)
-			for(int y = bottom; y <= top; y++)
-				setTileAt(levelCopy, x, y, CELL_OPEN);
+		// Check if there are any door tiles that should be protected
+		boolean protectRow = false, protectCol = false;
+		int protectIx = -1;
+		for(int i = left; i <= right; i++) {
+			for (int j = bottom; j <= top; j++) {
+				if(levelCopy[i][j] == CELL_DOOR) {
+					if((i - 1 >= 0 && levelCopy[i-1][j] != CELL_BLOCK) ||
+							(i + 1 < levelCopy.length && levelCopy[i+1][j] != CELL_BLOCK)) {
+						protectCol = true;
+						protectIx = i;
+						break;
+					} else if((j - 1 >= 0 && levelCopy[i][j-1] != CELL_BLOCK) ||
+							(j + 1 < levelCopy[0].length && levelCopy[i][j+1] != CELL_BLOCK)) {
+						protectRow = true;
+						protectIx = j;
+						break;
+					}
+				}
+			}
+			if(protectCol || protectRow) break;
+		}
+
+		for(int x = left; x <= right; x++) {
+			if(protectCol && x == protectIx) continue;
+			for(int y = bottom; y <= top; y++) {
+				if(protectRow && y == protectIx) continue;
+				if(levelCopy[x][y] == CELL_BLOCK) {
+					setTileAt(levelCopy, x, y, CELL_OPEN);
+				}
+			}
+
+		}
+
 
 		s.level = levelCopy;
 	}

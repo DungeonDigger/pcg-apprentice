@@ -46,6 +46,12 @@ public class DungeonDomainGenerator implements DomainGenerator {
 	public static final String VAR_AVAILABLE_KEYS = "available-keys";
 	public static final String VAR_HAS_EXIT = "has-exit";
 	public static final String VAR_ROOM_WOULD_INTERSECT = "intersect";
+	public static final String VAR_SENSOR_NORTH = "north";
+	public static final String VAR_SENSOR_SOUTH = "south";
+	public static final String VAR_SENSOR_EAST = "east";
+	public static final String VAR_SENSOR_WEST = "west";
+	public static final String VAR_DISTANCE = "start-distance";
+
 
 	// Tilemap cell values
 	public static final int CELL_VOID = -1;

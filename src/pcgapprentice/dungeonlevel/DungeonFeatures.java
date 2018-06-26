@@ -34,6 +34,7 @@ public class DungeonFeatures implements DenseStateFeatures {
 		features.add((double)ds.doorCount / (double)maxDoors);
 		features.add((double)ds.openCount / (double)maxOpen);
 		features.add(ds.hasExit ? 1.0 : 0);
+		features.add(ds.sensorNorth || ds.sensorSouth || ds.sensorEast || ds.sensorWest ? 1.0 : 0);
 
 		double[] featureVector = features.stream().mapToDouble(Double::doubleValue).toArray();
 

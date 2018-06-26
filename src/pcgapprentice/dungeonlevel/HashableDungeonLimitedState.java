@@ -23,7 +23,12 @@ public class HashableDungeonLimitedState extends WrappedHashableState {
 		result = prime * result + (ds.hasExit ? 1231 : 1237);
 		result = prime * result + ds.openCount;
 		result = prime * result + (ds.roomWouldIntersect ? 1231 : 1237);
+		result = prime * result + (ds.sensorNorth ? 1231 : 1237);
+		result = prime * result + (ds.sensorSouth ? 1231 : 1237);
+		result = prime * result + (ds.sensorEast ? 1231 : 1237);
+		result = prime * result + (ds.sensorWest ? 1231 : 1237);
 		result = prime * result + ds.treasureCount;
+		result = prime * result + ds.distance;
 		result = prime * result + Arrays.deepHashCode(ds.vision);
 		return result;
 	}
@@ -53,7 +58,17 @@ public class HashableDungeonLimitedState extends WrappedHashableState {
 			return false;
 		if (ds.roomWouldIntersect != other.roomWouldIntersect)
 			return false;
+		if (ds.sensorNorth != other.sensorNorth)
+			return false;
+		if (ds.sensorSouth != other.sensorSouth)
+			return false;
+		if (ds.sensorEast != other.sensorEast)
+			return false;
+		if (ds.sensorWest != other.sensorWest)
+			return false;
 		if (!Arrays.deepEquals(ds.vision, other.vision))
+			return false;
+		if (ds.distance != other.distance)
 			return false;
 		return true;
 	}

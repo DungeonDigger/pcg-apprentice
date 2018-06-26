@@ -81,10 +81,11 @@ public class EpisodeReader {
 					new String[]{DungeonDomainGenerator.VAR_ENEMY_COUNT,
 							DungeonDomainGenerator.VAR_TREASURE_COUNT,
 							DungeonDomainGenerator.VAR_DOOR_COUNT,
-							DungeonDomainGenerator.VAR_OPEN_COUNT}) {
+							DungeonDomainGenerator.VAR_OPEN_COUNT,
+							DungeonDomainGenerator.VAR_DISTANCE}) {
 
 				int max = Collections.max(states.stream().map(dls -> (int)dls.get(prop)).collect(Collectors.toList()));
-				int partitions = 3;
+				int partitions = prop == DungeonDomainGenerator.VAR_DISTANCE ? 5 : 3;
 				double partSize = (double)max / (double)partitions;
 				for (DungeonLimitedState dsl :
 						states) {

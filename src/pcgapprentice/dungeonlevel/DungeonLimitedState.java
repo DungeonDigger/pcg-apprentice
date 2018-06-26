@@ -1,8 +1,6 @@
 package pcgapprentice.dungeonlevel;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import burlap.mdp.core.state.MutableState;
 import burlap.mdp.core.state.State;
@@ -21,8 +19,13 @@ public class DungeonLimitedState implements MutableState {
 	int availableKeys;
 	boolean hasExit;
 	boolean roomWouldIntersect;
+	boolean sensorNorth;
+	boolean sensorSouth;
+	boolean sensorEast;
+	boolean sensorWest;
+	int distance;
 
-	private final static List<Object> keys = Arrays.<Object>asList(
+	private final static List<Object> keys = Arrays.asList(
 			DungeonDomainGenerator.VAR_VISION,
 			DungeonDomainGenerator.VAR_ENEMY_COUNT,
 			DungeonDomainGenerator.VAR_TREASURE_COUNT,
@@ -30,14 +33,19 @@ public class DungeonLimitedState implements MutableState {
 			DungeonDomainGenerator.VAR_OPEN_COUNT,
 			DungeonDomainGenerator.VAR_AVAILABLE_KEYS,
 			DungeonDomainGenerator.VAR_HAS_EXIT,
-			DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT
+			DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT,
+			DungeonDomainGenerator.VAR_SENSOR_NORTH,
+			DungeonDomainGenerator.VAR_SENSOR_SOUTH,
+			DungeonDomainGenerator.VAR_SENSOR_EAST,
+			DungeonDomainGenerator.VAR_SENSOR_WEST,
+			DungeonDomainGenerator.VAR_DISTANCE
 		);
 
 	public DungeonLimitedState() {}
 
 	public DungeonLimitedState(int[][] vision, int enemyCount, int treasureCount, int doorCount, int openCount,
-			int availableKeys, boolean hasExit, boolean roomWouldIntersect) {
-		super();
+							   int availableKeys, boolean hasExit, boolean roomWouldIntersect, boolean sensorNorth,
+							   boolean sensorSouth, boolean sensorEast, boolean sensorWest, int distance) {
 		this.vision = vision;
 		this.enemyCount = enemyCount;
 		this.treasureCount = treasureCount;
@@ -46,6 +54,11 @@ public class DungeonLimitedState implements MutableState {
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
 		this.roomWouldIntersect = roomWouldIntersect;
+		this.sensorNorth = sensorNorth;
+		this.sensorSouth = sensorSouth;
+		this.sensorEast = sensorEast;
+		this.sensorWest = sensorWest;
+		this.distance = distance;
 	}
 
 	public DungeonLimitedState(String s, int visionRadius) {
@@ -73,6 +86,16 @@ public class DungeonLimitedState implements MutableState {
 		hasExit = Boolean.parseBoolean(parts[partIx]);
 		partIx++;
 		roomWouldIntersect = Boolean.parseBoolean(parts[partIx]);
+		partIx++;
+		sensorNorth = Boolean.parseBoolean(parts[partIx]);
+		partIx++;
+		sensorSouth = Boolean.parseBoolean(parts[partIx]);
+		partIx++;
+		sensorEast = Boolean.parseBoolean(parts[partIx]);
+		partIx++;
+		sensorWest = Boolean.parseBoolean(parts[partIx]);
+		partIx++;
+		distance = Integer.parseInt(parts[partIx]);
 	}
 
 	public DungeonLimitedState(int x, int y, int level[][], int availableKeys, boolean hasExit,
@@ -144,6 +167,7 @@ public class DungeonLimitedState implements MutableState {
 			if(intersect) break;
 		}
 
+		int distanceFromStart = getDijkstraShortestPathDistance(level, 24, 0, x, y);
 
 		this.vision = visibility;
 		this.enemyCount = enemyCount;
@@ -153,6 +177,11 @@ public class DungeonLimitedState implements MutableState {
 		this.availableKeys = availableKeys;
 		this.hasExit = hasExit;
 		this.roomWouldIntersect = intersect;
+		this.sensorNorth = y > level[0].length - 4;
+		this.sensorSouth = y < 3;
+		this.sensorEast = x > level.length - 4;
+		this.sensorWest = x < 3;
+		this.distance = distanceFromStart;
 	}
 
 	/**
@@ -163,6 +192,68 @@ public class DungeonLimitedState implements MutableState {
 	 */
 	private int getVisionDim(int visionRadius) {
 		return visionRadius * 2 + 1;
+	}
+
+	/**
+	 * Gets the shortest path distance between the start and end points in a level.
+	 * All non-block cells are considered traversable.
+	 *
+	 * @param level The tilemap of the level
+	 * @param startX Start location X
+	 * @param startY Start location Y
+	 * @param endX Destination X
+	 * @param endY Destination Y
+	 * @return The distance from the start to the end point.
+	 */
+	private int getDijkstraShortestPathDistance(int[][] level, int startX, int startY, int endX, int endY) {
+		// Collect all of the traversable tiles
+		List<String> unvisited = new ArrayList<>();
+		for(int i = 0; i < level.length; i++)
+			for(int j = 0; j < level[0].length; j++)
+				if (level[i][j] != DungeonDomainGenerator.CELL_BLOCK) unvisited.add(i + "_" + j);
+
+		Map<String, Integer> distances = new HashMap<>();
+		for(String s : unvisited)
+			distances.put(s, Integer.MAX_VALUE);
+		distances.put(startX + "_" + startY, 0);
+		String targetLoc = endX + "_" + endY;
+
+		while(!unvisited.isEmpty()) {
+			// Find the unvisited node with the shortest distance
+			String toVisit = null;
+			for(String v : unvisited) {
+				if(toVisit == null || distances.get(v) < distances.get(toVisit)) {
+					toVisit = v;
+				}
+			}
+			unvisited.remove(toVisit);
+
+			if(toVisit.equals(targetLoc))
+				return distances.get(toVisit);
+
+			// Visit all of the nodes neighbors and update their distances
+			int x = Integer.parseInt(toVisit.split("_")[0]);
+			int y = Integer.parseInt(toVisit.split("_")[1]);
+			List<String> neighbors = new ArrayList<>();
+			if (x - 1 > 0 && level[x - 1][y] != DungeonDomainGenerator.CELL_BLOCK)
+				neighbors.add((x - 1) + "_" + y);
+			if (x + 1 < level.length && level[x + 1][y] != DungeonDomainGenerator.CELL_BLOCK)
+				neighbors.add((x + 1) + "_" + y);
+			if (y - 1 > 0 && level[x][y - 1] != DungeonDomainGenerator.CELL_BLOCK)
+				neighbors.add(x + "_" + (y - 1));
+			if (y + 1 < level[0].length && level[x][y + 1] != DungeonDomainGenerator.CELL_BLOCK)
+				neighbors.add(x + "_" + (y + 1));
+
+			int altDistance = distances.get(toVisit) + 1;
+			for(String neighbor : neighbors) {
+				if(altDistance < distances.get(neighbor))
+					distances.put(neighbor, altDistance);
+			}
+		}
+
+		// Sad times, we didn't find our destination
+		System.out.println("Failed to find destination in shortest path");
+		return -1;
 	}
 
 	@Override
@@ -189,6 +280,16 @@ public class DungeonLimitedState implements MutableState {
 				return hasExit;
 			case DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT:
 				return roomWouldIntersect;
+			case DungeonDomainGenerator.VAR_SENSOR_NORTH:
+				return sensorNorth;
+			case DungeonDomainGenerator.VAR_SENSOR_SOUTH:
+				return sensorSouth;
+			case DungeonDomainGenerator.VAR_SENSOR_EAST:
+				return sensorEast;
+			case DungeonDomainGenerator.VAR_SENSOR_WEST:
+				return sensorWest;
+			case DungeonDomainGenerator.VAR_DISTANCE:
+				return distance;
 			default:
 				throw new UnknownKeyException(variableKey);
 		}
@@ -201,7 +302,7 @@ public class DungeonLimitedState implements MutableState {
 			for(int j = 0; j < vision[0].length; j++)
 				visionCopy[i][j] = vision[i][j];
 		return new DungeonLimitedState(visionCopy, enemyCount, treasureCount, doorCount, openCount, availableKeys,
-				hasExit, roomWouldIntersect);
+				hasExit, roomWouldIntersect, sensorNorth, sensorSouth, sensorEast, sensorWest, distance);
 	}
 
 	@Override
@@ -226,10 +327,25 @@ public class DungeonLimitedState implements MutableState {
 				availableKeys = StateUtilities.stringOrNumber(value).intValue();
 				break;
 			case DungeonDomainGenerator.VAR_HAS_EXIT:
-				hasExit = StateUtilities.stringOrBoolean(value).booleanValue();;
+				hasExit = StateUtilities.stringOrBoolean(value).booleanValue();
 				break;
 			case DungeonDomainGenerator.VAR_ROOM_WOULD_INTERSECT:
-				roomWouldIntersect = StateUtilities.stringOrBoolean(value).booleanValue();;
+				roomWouldIntersect = StateUtilities.stringOrBoolean(value).booleanValue();
+				break;
+			case DungeonDomainGenerator.VAR_SENSOR_NORTH:
+				sensorNorth = StateUtilities.stringOrBoolean(value).booleanValue();
+				break;
+			case DungeonDomainGenerator.VAR_SENSOR_SOUTH:
+				sensorSouth = StateUtilities.stringOrBoolean(value).booleanValue();
+				break;
+			case DungeonDomainGenerator.VAR_SENSOR_EAST:
+				sensorEast = StateUtilities.stringOrBoolean(value).booleanValue();
+				break;
+			case DungeonDomainGenerator.VAR_SENSOR_WEST:
+				sensorWest = StateUtilities.stringOrBoolean(value).booleanValue();
+				break;
+			case DungeonDomainGenerator.VAR_DISTANCE:
+				distance = StateUtilities.stringOrNumber(value).intValue();
 				break;
 			default:
 				throw new UnknownKeyException(variableKey);
@@ -258,7 +374,12 @@ public class DungeonLimitedState implements MutableState {
 		s += openCount + ",";
 		s += availableKeys + ",";
 		s += hasExit + ",";
-		s += roomWouldIntersect;
+		s += roomWouldIntersect + ",";
+		s += sensorNorth + ",";
+		s += sensorSouth + ",";
+		s += sensorEast + ",";
+		s += sensorWest + ",";
+		s += distance;
 
 		return s;
 	}
@@ -325,6 +446,46 @@ public class DungeonLimitedState implements MutableState {
 
 	public void setRoomWouldIntersect(boolean roomWouldIntersect) {
 		this.roomWouldIntersect = roomWouldIntersect;
+	}
+
+	public boolean isSensorNorth() {
+		return sensorNorth;
+	}
+
+	public void setSensorNorth(boolean sensorNorth) {
+		this.sensorNorth = sensorNorth;
+	}
+
+	public boolean isSensorSouth() {
+		return sensorSouth;
+	}
+
+	public void setSensorSouth(boolean sensorSouth) {
+		this.sensorSouth = sensorSouth;
+	}
+
+	public boolean isSensorEast() {
+		return sensorEast;
+	}
+
+	public void setSensorEast(boolean sensorEast) {
+		this.sensorEast = sensorEast;
+	}
+
+	public boolean isSensorWest() {
+		return sensorWest;
+	}
+
+	public void setSensorWest(boolean sensorWest) {
+		this.sensorWest = sensorWest;
+	}
+
+	public int getDistance() {
+		return distance;
+	}
+
+	public void setDistance(int distance) {
+		this.distance = distance;
 	}
 
 	public static List<Object> getKeys() {

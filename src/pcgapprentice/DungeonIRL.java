@@ -53,6 +53,13 @@ public class DungeonIRL {
 			String[] enemyDemoFiles = new String[] {"data/enemy-demo (1).dat",
 					"data/enemy-demo (2).dat",
 					"data/enemy-demo (3).dat"};
+			String[] zeldaFiles = new String[] {
+					"data/zelda-1-full-demo.dat",
+					"data/zelda-2-full-demo.dat",
+					"data/zelda-3-full-demo.dat",
+					"data/zelda-4-full-demo.dat",
+					"data/zelda-5-full-demo.dat"
+			};
 
 			String[] allFiles = new String[] {
 //					"data/20180605221946-full-demo.dat",
@@ -72,7 +79,7 @@ public class DungeonIRL {
 					"data/evan-demo (4).dat",
 					"data/evan-demo (5).dat"};
 
-			Episode ep = trainIrlAgentAndGenerateEpisode(allFiles, 2, 2,
+			Episode ep = trainIrlAgentAndGenerateEpisode(zeldaFiles, 1000, 2,
 					400, 0.01, 0,
 					DungeonPolicyUtils.RolloutRefreshType.RandomState);
 			renderEpisodeVisualization(ep);
@@ -133,6 +140,7 @@ public class DungeonIRL {
 		// Solve the MDP using the combined reward function
 		domain.setModel(new FactoredModel(new DungeonLimitedStateModel(freq, agentVisionRadius), combinedReward, new DungeonTF()));
 		planner.setDomain(domain);
+		planner.setGamma(1);
 		planner.resetSolver();
 		GreedyQPolicy policy = planner.planFromState(startStateGenerator.generateState());
 

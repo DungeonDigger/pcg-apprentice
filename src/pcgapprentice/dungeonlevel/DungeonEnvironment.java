@@ -71,9 +71,9 @@ public class DungeonEnvironment implements Environment {
 
 	@Override
 	public void resetEnvironment() {
-		int[][] level = new int[50][50];
-		level[24][0] = 1;
-		fullHiddenState = new DungeonState(24, 0, level, 0, false);
+		int[][] level = new int[100][100];
+		level[49][50] = 1;
+		fullHiddenState = new DungeonState(49, 50, level, 0, false);
 		lastReward = 0;
 	}
 

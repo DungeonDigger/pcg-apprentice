@@ -299,8 +299,8 @@ public class LevelMetrics {
             int ny = n.getValue();
 
             // South
-            if(nodeY + 1 < level[0].length && level[nx][ny + 1] != CELL_BLOCK
-                    && level[nx][ny + 1] != FILL_COLOR) {
+            if(ny + 1 < level[0].length && (level[nx][ny + 1] != CELL_BLOCK)
+                    && (level[nx][ny + 1] != FILL_COLOR)) {
                 if(level[nx][ny + 1] == CELL_EXIT) {
                     level[nx][ny + 1] = FILL_COLOR;
                     break;
@@ -309,8 +309,8 @@ public class LevelMetrics {
                 queue.offer(new Pair<>(nx, ny + 1));
             }
             // North
-            if(nodeY - 1 >= 0  && level[nx][ny - 1] != CELL_BLOCK
-                    && level[nx][ny - 1] != FILL_COLOR) {
+            if(ny - 1 >= 0  && (level[nx][ny - 1] != CELL_BLOCK)
+                    && (level[nx][ny - 1] != FILL_COLOR)) {
                 if(level[nx][ny - 1] == CELL_EXIT) {
                     level[nx][ny - 1] = FILL_COLOR;
                     break;
@@ -319,8 +319,8 @@ public class LevelMetrics {
                 queue.offer(new Pair<>(nx, ny - 1));
             }
             // East
-            if(nodeX + 1 < level.length  && level[nx + 1][ny] != CELL_BLOCK
-                    && level[nx + 1][ny] != FILL_COLOR) {
+            if(nx + 1 < level.length && (level[nx + 1][ny] != CELL_BLOCK)
+                    && (level[nx + 1][ny] != FILL_COLOR)) {
                 if(level[nx + 1][ny] == CELL_EXIT) {
                     level[nx + 1][ny] = FILL_COLOR;
                     break;
@@ -329,8 +329,8 @@ public class LevelMetrics {
                 queue.offer(new Pair<>(nx + 1, ny));
             }
             // West
-            if(nodeX - 1 >= 0  && level[nx - 1][ny] != CELL_BLOCK
-                    && level[nx - 1][ny] != FILL_COLOR) {
+            if(nx - 1 >= 0  && (level[nx - 1][ny] != CELL_BLOCK)
+                    && (level[nx - 1][ny] != FILL_COLOR)) {
                 if(level[nx - 1][ny] == CELL_EXIT) {
                     level[nx - 1][ny] = FILL_COLOR;
                     break;

@@ -1,14 +1,18 @@
 package pcgapprentice.dungeonlevel;
 
+import burlap.behavior.policy.GreedyQPolicy;
 import burlap.behavior.policy.Policy;
+import burlap.behavior.policy.support.ActionProb;
 import burlap.behavior.singleagent.Episode;
 import burlap.mdp.core.action.Action;
 import burlap.mdp.core.state.State;
+import burlap.mdp.singleagent.common.UniformCostRF;
 import burlap.mdp.singleagent.environment.EnvironmentOutcome;
 import burlap.mdp.singleagent.environment.SimulatedEnvironment;
 import burlap.mdp.singleagent.model.SampleModel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +26,13 @@ public class DungeonPolicyUtils {
     public enum RolloutRefreshType {
         StartState,
         RandomState,
-        SameVisionState
+        SameVisionState,
+        None
+    }
+
+    public enum RolloutType {
+        Normal,
+        Smart
     }
 
     /**
@@ -42,12 +52,15 @@ public class DungeonPolicyUtils {
      * @param maxRefreshes The maximum number of times the agent will reset its state during
      *                     the run
      * @param refreshType The type of state refresh to utilize
+     * @param rolloutType The type of rollout to perform
      * @return An episode obtained from following the policy
      */
     public static Episode rolloutWithRefreshProbability(Policy p, State s, SampleModel model, Set<String> stateStrings,
                                                         int visionRadius, int maxSteps, double refreshProbIncr,
-                                                        int maxRefreshes, RolloutRefreshType refreshType) {
+                                                        int maxRefreshes, RolloutRefreshType refreshType,
+                                                        RolloutType rolloutType) {
         SimulatedEnvironment env = new SimulatedEnvironment(model, s);
+        DungeonEnvironment fullEnv = new DungeonEnvironment(new UniformCostRF(), 1, true);
         Episode ep = new Episode(env.currentObservation());
         double refresh = 0;
         int refreshCount = 0;
@@ -95,8 +108,35 @@ public class DungeonPolicyUtils {
             } else {
                 // Take an action according to the policy
                 Action a = p.action(env.currentObservation());
+
+                if(rolloutType == RolloutType.Smart) {
+                    // Make sure this action isn't stupid
+                    DungeonState fullCurrentState = (DungeonState)fullEnv.currentObservation();
+                    DungeonLimitedState realCurrentState = new DungeonLimitedState(fullCurrentState.x, fullCurrentState.y,
+                            fullCurrentState.level, fullCurrentState.availableKeys, fullCurrentState.hasExit, visionRadius);
+                    List<ActionProb> probs = ((GreedyQPolicy)p).policyDistribution(env.currentObservation());
+                    // Make sure there are other options to choose from if the selected one is stupid
+                    if(probs.size() > 1) {
+                        if((a.actionName() == DungeonDomainGenerator.ACTION_ROOM_LARGE && realCurrentState.roomWouldIntersect)
+                                || (a.actionName() == DungeonDomainGenerator.ACTION_UP && realCurrentState.sensorNorth)
+                                || (a.actionName() == DungeonDomainGenerator.ACTION_DOWN && realCurrentState.sensorSouth)
+                                || (a.actionName() == DungeonDomainGenerator.ACTION_RIGHT && realCurrentState.sensorEast)
+                                || (a.actionName() == DungeonDomainGenerator.ACTION_LEFT && realCurrentState.sensorWest)) {
+                            String actionName = a.actionName();
+                            Optional<ActionProb> dumb = probs.stream()
+                                    .filter(actionProb -> actionProb.ga.actionName() == actionName).findFirst();
+                            if(dumb.isPresent()) {
+                                probs.remove(dumb.get());
+                            }
+
+                            a = probs.get(rand.nextInt(probs.size())).ga;
+                        }
+                    }
+                }
+
                 EnvironmentOutcome outcome = env.executeAction(a);
                 ep.transition(a, outcome.op, outcome.r);
+                fullEnv.executeAction(a);
 
                 numSteps++;
 

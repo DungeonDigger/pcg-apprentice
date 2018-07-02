@@ -72,13 +72,30 @@ public class DungeonIRL {
 			List<Episode> eps = trainIrlAgentAndGenerateEpisode(zeldaFiles, 5000, 2,
 					new DungeonRolloutRequest[] {
 							new DungeonRolloutRequest(400, 0.01, 0,
-									DungeonPolicyUtils.RolloutRefreshType.RandomState)
+									DungeonPolicyUtils.RolloutRefreshType.None,
+									DungeonPolicyUtils.RolloutType.Normal),
+							new DungeonRolloutRequest(400, 0.01, 0,
+									DungeonPolicyUtils.RolloutRefreshType.None,
+									DungeonPolicyUtils.RolloutType.Smart),
+							new DungeonRolloutRequest(400, 0.01, 3,
+									DungeonPolicyUtils.RolloutRefreshType.StartState,
+									DungeonPolicyUtils.RolloutType.Normal),
+							new DungeonRolloutRequest(400, 0.01, 3,
+									DungeonPolicyUtils.RolloutRefreshType.RandomState,
+									DungeonPolicyUtils.RolloutType.Normal),
+							new DungeonRolloutRequest(400, 0.01, 3,
+									DungeonPolicyUtils.RolloutRefreshType.SameVisionState,
+									DungeonPolicyUtils.RolloutType.Normal)
 					});
 
 			int levelNum = 1;
 			for(Episode ep : eps) {
 				String levelName = "Level " + levelNum;
+				Date dNow = new Date();
+				SimpleDateFormat ft = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
+				String levelOutFile = "data/out/" + ft.format(dNow) + "_level_" + levelNum + ".dat";
 				int[][] level = buildLevel(ep, levelName);
+				writeLevelToFile(level, levelOutFile);
 				System.out.println(levelName + " Stats");
 				System.out.println("------------------");
 				double exploration = LevelMetrics.getExplorationPercentage(level, 49, 50);
@@ -167,7 +184,7 @@ public class DungeonIRL {
 			Episode agentEp = DungeonPolicyUtils.rolloutWithRefreshProbability(policy,
 					startStateGenerator.generateState(), domain.getModel(), freq.keySet(), agentVisionRadius,
 					rolloutRequest.maxSteps, rolloutRequest.refreshProbIncr, rolloutRequest.maxRefreshes,
-					rolloutRequest.refreshType);
+					rolloutRequest.refreshType, rolloutRequest.rolloutType);
 			episodes.add(agentEp);
 			// Write the rollout to a file
 			String actionRollout = agentEp.actionSequence.stream().map(n -> n.actionName()).collect(Collectors.joining("\n"));
@@ -217,6 +234,33 @@ public class DungeonIRL {
 
 		DungeonState ds = (DungeonState)environment.currentObservation();
 		return ds.level;
+	}
+
+	/**
+	 * Writes a level matrix to a file.
+	 *
+	 * @param level The 2D array representing the level
+	 * @param destFile The destination file to write to
+	 * @throws IOException
+	 */
+	private static void writeLevelToFile(int[][] level, String destFile) throws IOException {
+		int iMax = level.length;
+		int jMax = level[0].length;
+		List<String> rows = new ArrayList<>();
+
+		for(int j = jMax - 1; j >= 0; j--) {
+			String row = "";
+			for(int i = 0; i < iMax; i++) {
+				row += level[i][j] + " ";
+			}
+			rows.add(row);
+		}
+
+		String levelString = String.join("\n", rows);
+		PrintWriter out = new PrintWriter(destFile);
+		out.println(levelString);
+		out.close();
+		System.out.println("Level written to: " + destFile);
 	}
 
 }

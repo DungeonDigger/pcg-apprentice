@@ -5,6 +5,7 @@ import burlap.behavior.policy.Policy;
 import burlap.behavior.policy.support.ActionProb;
 import burlap.behavior.singleagent.Episode;
 import burlap.mdp.core.action.Action;
+import burlap.mdp.core.action.SimpleAction;
 import burlap.mdp.core.state.State;
 import burlap.mdp.singleagent.common.UniformCostRF;
 import burlap.mdp.singleagent.environment.EnvironmentOutcome;
@@ -31,6 +32,7 @@ public class DungeonPolicyUtils {
     }
 
     public enum RolloutType {
+        Dumb,
         Normal,
         Smart
     }
@@ -132,6 +134,10 @@ public class DungeonPolicyUtils {
                             a = probs.get(rand.nextInt(probs.size())).ga;
                         }
                     }
+                } else if(rolloutType == RolloutType.Dumb) {
+                    // Just pick a random action from our valid probability distribution
+                    List<ActionProb> probs = ((GreedyQPolicy)p).policyDistribution(env.currentObservation());
+                    a = probs.get(rand.nextInt(probs.size())).ga;
                 }
 
                 EnvironmentOutcome outcome = env.executeAction(a);
@@ -144,6 +150,13 @@ public class DungeonPolicyUtils {
                 refresh += refreshProbIncr;
             }
         } while(!env.isInTerminalState() && numSteps < maxSteps);
+
+        // If we haven't made an exit, force one to be created so the level is at least valid
+        if(!env.isInTerminalState()) {
+            Action exitAction = new SimpleAction(DungeonDomainGenerator.ACTION_EXIT);
+            EnvironmentOutcome outcome = env.executeAction(exitAction);
+            ep.transition(exitAction, outcome.op, outcome.r);
+        }
 
         return ep;
     }

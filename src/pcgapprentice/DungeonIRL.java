@@ -73,6 +73,9 @@ public class DungeonIRL {
 					new DungeonRolloutRequest[] {
 							new DungeonRolloutRequest(400, 0.01, 0,
 									DungeonPolicyUtils.RolloutRefreshType.None,
+									DungeonPolicyUtils.RolloutType.Dumb),
+							new DungeonRolloutRequest(400, 0.01, 0,
+									DungeonPolicyUtils.RolloutRefreshType.None,
 									DungeonPolicyUtils.RolloutType.Normal),
 							new DungeonRolloutRequest(400, 0.01, 0,
 									DungeonPolicyUtils.RolloutRefreshType.None,

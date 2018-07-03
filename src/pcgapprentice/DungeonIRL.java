@@ -97,6 +97,7 @@ public class DungeonIRL {
 				Date dNow = new Date();
 				SimpleDateFormat ft = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
 				String levelOutFile = "data/out/" + ft.format(dNow) + "_level_" + levelNum + ".dat";
+				String levelOutFile = "data/out/" + ft.format(dNow) + "_level_" + levelNum + ".txt";
 				int[][] level = buildLevel(ep, levelName);
 				writeLevelToFile(level, levelOutFile);
 				System.out.println(levelName + " Stats");

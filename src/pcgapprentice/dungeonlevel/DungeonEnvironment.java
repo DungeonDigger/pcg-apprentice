@@ -61,7 +61,7 @@ public class DungeonEnvironment implements Environment {
 
 	@Override
 	public double lastReward() {
-		return lastReward();
+		return lastReward;
 	}
 
 	@Override

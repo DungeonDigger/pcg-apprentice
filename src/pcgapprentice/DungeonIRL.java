@@ -48,7 +48,10 @@ public class DungeonIRL {
 					"data/zelda-2-full-demo.dat",
 					"data/zelda-3-full-demo.dat",
 					"data/zelda-4-full-demo.dat",
-					"data/zelda-5-full-demo.dat"
+					"data/zelda-5-full-demo.dat",
+					"data/zelda-6-full-demo.dat",
+					"data/zelda-7-full-demo.dat",
+					"data/zelda-8-full-demo.dat"
 			};
 
 			String[] allFiles = new String[] {
@@ -69,7 +72,7 @@ public class DungeonIRL {
 					"data/evan-demo (4).dat",
 					"data/evan-demo (5).dat"};
 
-			List<Episode> eps = trainIrlAgentAndGenerateEpisode(zeldaFiles, 5000, 2,
+			List<Episode> eps = trainIrlAgentAndGenerateEpisode(zeldaFiles, 10000, 3,
 					new DungeonRolloutRequest[] {
 							new DungeonRolloutRequest(400, 0.01, 0,
 									DungeonPolicyUtils.RolloutRefreshType.None,
@@ -80,13 +83,13 @@ public class DungeonIRL {
 							new DungeonRolloutRequest(400, 0.01, 0,
 									DungeonPolicyUtils.RolloutRefreshType.None,
 									DungeonPolicyUtils.RolloutType.Smart),
-							new DungeonRolloutRequest(400, 0.01, 3,
+							new DungeonRolloutRequest(400, 0.005, 3,
 									DungeonPolicyUtils.RolloutRefreshType.StartState,
 									DungeonPolicyUtils.RolloutType.Normal),
-							new DungeonRolloutRequest(400, 0.01, 3,
+							new DungeonRolloutRequest(400, 0.005, 3,
 									DungeonPolicyUtils.RolloutRefreshType.RandomState,
 									DungeonPolicyUtils.RolloutType.Normal),
-							new DungeonRolloutRequest(400, 0.01, 3,
+							new DungeonRolloutRequest(400, 0.005, 3,
 									DungeonPolicyUtils.RolloutRefreshType.SameVisionState,
 									DungeonPolicyUtils.RolloutType.Normal)
 					});
@@ -96,7 +99,6 @@ public class DungeonIRL {
 				String levelName = "Level " + levelNum;
 				Date dNow = new Date();
 				SimpleDateFormat ft = new SimpleDateFormat("yyyy_MM_dd_hhmmss");
-				String levelOutFile = "data/out/" + ft.format(dNow) + "_level_" + levelNum + ".dat";
 				String levelOutFile = "data/out/" + ft.format(dNow) + "_level_" + levelNum + ".txt";
 				int[][] level = buildLevel(ep, levelName);
 				writeLevelToFile(level, levelOutFile);
@@ -168,7 +170,7 @@ public class DungeonIRL {
 		// Solve the MDP using the combined reward function
 		domain.setModel(new FactoredModel(new DungeonLimitedStateModel(freq, agentVisionRadius), combinedReward, new DungeonTF()));
 		planner.setDomain(domain);
-		planner.setGamma(0.99);
+		planner.setGamma(0.95);
 		planner.resetSolver();
 		GreedyQPolicy policy = planner.planFromState(startStateGenerator.generateState());
 		System.out.println("Finished building policy");

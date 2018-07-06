@@ -117,6 +117,13 @@ public class DungeonPolicyUtils {
                     DungeonLimitedState realCurrentState = new DungeonLimitedState(fullCurrentState.x, fullCurrentState.y,
                             fullCurrentState.level, fullCurrentState.availableKeys, fullCurrentState.hasExit, visionRadius);
                     List<ActionProb> probs = ((GreedyQPolicy)p).policyDistribution(env.currentObservation());
+
+                    // Don't go placing doors in random places!
+                    Optional<ActionProb> door = probs.stream()
+                            .filter(actionProb -> actionProb.ga.actionName() == DungeonDomainGenerator.ACTION_DOOR).findFirst();
+                    if(door.isPresent()) {
+                        probs.remove(door.get());
+                    }
                     // Make sure there are other options to choose from if the selected one is stupid
                     if(probs.size() > 1) {
                         if((a.actionName() == DungeonDomainGenerator.ACTION_ROOM_LARGE && realCurrentState.roomWouldIntersect)

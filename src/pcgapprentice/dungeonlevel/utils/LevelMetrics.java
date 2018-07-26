@@ -16,7 +16,7 @@ import static pcgapprentice.dungeonlevel.DungeonDomainGenerator.*;
  */
 public class LevelMetrics {
 
-    private static final int FILL_COLOR = 100;
+    public static final int FILL_COLOR = 100;
 
     /**
      * Gets an estimate of the percentage of the level that will be
@@ -286,7 +286,11 @@ public class LevelMetrics {
         return new Pair<>(distances.get(targetLoc), prev);
     }
 
-    private static void floodFill(int nodeX, int nodeY, int[][] level) {
+    public static void floodFill(int nodeX, int nodeY, int[][] level) {
+        floodFill(nodeX, nodeY, level, true);
+    }
+
+    public static void floodFill(int nodeX, int nodeY, int[][] level, boolean stopAtExit) {
         if(level[nodeX][nodeY] == FILL_COLOR) return;
         if(level[nodeX][nodeY] == CELL_BLOCK) return;
         Queue<Pair<Integer, Integer>> queue = new ArrayDeque<>();
@@ -301,7 +305,7 @@ public class LevelMetrics {
             // South
             if(ny + 1 < level[0].length && (level[nx][ny + 1] != CELL_BLOCK)
                     && (level[nx][ny + 1] != FILL_COLOR)) {
-                if(level[nx][ny + 1] == CELL_EXIT) {
+                if(level[nx][ny + 1] == CELL_EXIT && stopAtExit) {
                     level[nx][ny + 1] = FILL_COLOR;
                     break;
                 }
@@ -311,7 +315,7 @@ public class LevelMetrics {
             // North
             if(ny - 1 >= 0  && (level[nx][ny - 1] != CELL_BLOCK)
                     && (level[nx][ny - 1] != FILL_COLOR)) {
-                if(level[nx][ny - 1] == CELL_EXIT) {
+                if(level[nx][ny - 1] == CELL_EXIT && stopAtExit) {
                     level[nx][ny - 1] = FILL_COLOR;
                     break;
                 }
@@ -321,7 +325,7 @@ public class LevelMetrics {
             // East
             if(nx + 1 < level.length && (level[nx + 1][ny] != CELL_BLOCK)
                     && (level[nx + 1][ny] != FILL_COLOR)) {
-                if(level[nx + 1][ny] == CELL_EXIT) {
+                if(level[nx + 1][ny] == CELL_EXIT && stopAtExit) {
                     level[nx + 1][ny] = FILL_COLOR;
                     break;
                 }
@@ -331,7 +335,7 @@ public class LevelMetrics {
             // West
             if(nx - 1 >= 0  && (level[nx - 1][ny] != CELL_BLOCK)
                     && (level[nx - 1][ny] != FILL_COLOR)) {
-                if(level[nx - 1][ny] == CELL_EXIT) {
+                if(level[nx - 1][ny] == CELL_EXIT && stopAtExit) {
                     level[nx - 1][ny] = FILL_COLOR;
                     break;
                 }

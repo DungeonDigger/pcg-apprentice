@@ -25,6 +25,7 @@ import burlap.visualizer.Visualizer;
 import pcgapprentice.dungeonlevel.*;
 import pcgapprentice.dungeonlevel.utils.DemonstrationData;
 import pcgapprentice.dungeonlevel.utils.EpisodeReader;
+import pcgapprentice.dungeonlevel.utils.LevelCleanup;
 import pcgapprentice.dungeonlevel.utils.LevelMetrics;
 import pcgapprentice.reward.AggregatedRF;
 
@@ -239,7 +240,9 @@ public class DungeonIRL {
 		}
 
 		DungeonState ds = (DungeonState)environment.currentObservation();
-		return ds.level;
+		int[][] cleanedLevel = LevelCleanup.getCleanedLevel(ds.level);
+		v.updateState(new DungeonState(ds.x, ds.y, cleanedLevel, ds.availableKeys, ds.hasExit));
+		return cleanedLevel;
 	}
 
 	/**

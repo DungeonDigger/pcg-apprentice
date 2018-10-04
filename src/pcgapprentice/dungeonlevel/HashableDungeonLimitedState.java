@@ -8,6 +8,8 @@ import burlap.statehashing.WrappedHashableState;
 
 public class HashableDungeonLimitedState extends WrappedHashableState {
 
+	public HashableDungeonLimitedState() {}
+
 	public HashableDungeonLimitedState(State s) {
 		super(s);
 	}
